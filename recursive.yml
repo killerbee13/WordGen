@@ -1,0 +1,54 @@
+A:
+  - val: "{A} {A}"
+
+a:
+  - val: "a{b}"
+    ipa: "a"
+  - val: ""
+    ipa: "A"
+b:
+  - val: "b{c}"
+  - val: "bb{c}b"
+    ipa: "b"
+c:
+  - val: "{d}c"
+    ipa: "c"
+d:
+  - val: "d{e}"
+    ipa: "d"
+  - val: "d{f}"
+    ipa: "d"
+e:
+  - val: "e{f}e"
+    ipa: "e"
+f:
+  - val: "f{g}"
+    ipa: "f"
+  - val: "0"
+    ipa: "0"
+    freq: 0
+g:
+  - val: "g{a} {a}g"
+    ipa: "g"
+  - val: "{e}"
+    ipa: "g."
+
+x:
+  - val: ".{y}."
+    ipa: x
+y:
+  - val: q
+    ipa: q
+  - val: w
+    ipa: w
+  - val: e
+    ipa: e
+
+W:
+  - val: "{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}"
+    freq: 1
+
+R:
+  - val: "[0]"
+  - val: "[1{R}]"
+  - val: "[2{R}{R}]"

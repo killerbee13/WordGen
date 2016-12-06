@@ -1,0 +1,311 @@
+# Number generation grammar
+
+replaceIPA:
+  # Clear leading zeroes
+  - - m: "^0(.)"
+      r: '\1'
+
+number:
+  - val: "{onesZ}"
+    freq: .1
+  - val: "{tenVal}"
+    freq: 1
+  - val: "{hundredVal}"
+    freq: 1
+  - val: "{thousands}"
+    freq: 1
+  - val: "{hundredThou}"
+    freq: 1
+  - val: "{millions}"
+    freq: 1
+  - val: ":{digits}"
+    freq: .1
+  - val: ":{phone}"
+    freq: .5
+
+nulla: [{ipa: "0"}]
+
+comma: [{ipa: ","}]
+
+space:
+  - val: " "
+    ipa: " "
+
+onesZ:
+  - val: "one"
+    ipa: "1"
+  - val: "two"
+    ipa: "2"
+  - val: "three"
+    ipa: "3"
+  - val: "four"
+    ipa: "4"
+  - val: "five"
+    ipa: "5"
+  - val: "six"
+    ipa: "6"
+  - val: "seven"
+    ipa: "7"
+  - val: "eight"
+    ipa: "8"
+  - val: "nine"
+    ipa: "9"
+  - val: "zero"
+    ipa: "0"
+
+ones:
+  - val: "one"
+    ipa: "1"
+  - val: "two"
+    ipa: "2"
+  - val: "three"
+    ipa: "3"
+  - val: "four"
+    ipa: "4"
+  - val: "five"
+    ipa: "5"
+  - val: "six"
+    ipa: "6"
+  - val: "seven"
+    ipa: "7"
+  - val: "eight"
+    ipa: "8"
+  - val: "nine"
+    ipa: "9"
+  - val: "oh"
+    ipa: "0"
+
+onesNoZ:
+  - val: "one"
+    ipa: "1"
+  - val: "two"
+    ipa: "2"
+  - val: "three"
+    ipa: "3"
+  - val: "four"
+    ipa: "4"
+  - val: "five"
+    ipa: "5"
+  - val: "six"
+    ipa: "6"
+  - val: "seven"
+    ipa: "7"
+  - val: "eight"
+    ipa: "8"
+  - val: "nine"
+    ipa: "9"
+
+tens:
+  - val: "twenty"
+    ipa: "2"
+  - val: "thirty"
+    ipa: "3"
+  - val: "forty"
+    ipa: "4"
+  - val: "fifty"
+    ipa: "5"
+  - val: "sixty"
+    ipa: "6"
+  - val: "seventy"
+    ipa: "7"
+  - val: "eighty"
+    ipa: "8"
+  - val: "ninety"
+    ipa: "9"
+
+teens:
+  - val: "ten"
+    ipa: "10"
+  - val: "eleven"
+    ipa: "11"
+  - val: "twelve"
+    ipa: "12"
+  - val: "thirteen"
+    ipa: "13"
+  - val: "fourteen"
+    ipa: "14"
+  - val: "fifteen"
+    ipa: "15"
+  - val: "sixteen"
+    ipa: "16"
+  - val: "seventeen"
+    ipa: "17"
+  - val: "eighteen"
+    ipa: "18"
+  - val: "nineteen"
+    ipa: "19"
+
+teensComma:
+  - val: "ten"
+    ipa: "1,0"
+  - val: "eleven"
+    ipa: "1,1"
+  - val: "twelve"
+    ipa: "1,2"
+  - val: "thirteen"
+    ipa: "1,3"
+  - val: "fourteen"
+    ipa: "1,4"
+  - val: "fifteen"
+    ipa: "1,5"
+  - val: "sixteen"
+    ipa: "1,6"
+  - val: "seventeen"
+    ipa: "1,7"
+  - val: "eighteen"
+    ipa: "1,8"
+  - val: "nineteen"
+    ipa: "1,9"
+
+tenValNoZ:
+  - val: "{tens}-{onesNoZ}"
+    freq: 70
+  - val: "{tens}{nulla}"
+    freq: 10
+  - val: "{teens}"
+    freq: 10
+
+tenVal:
+  - val: "{tens}-{onesNoZ}"
+    freq: 70
+  - val: "{tens}{nulla}"
+    freq: 10
+  - val: "{teens}"
+    freq: 10
+  - val: "{nulla}{onesNoZ}"
+    freq: 10
+
+tenValComma:
+  - val: "{tens}-{onesNoZ}"
+    ipa: ","
+    freq: 70
+  - val: "{tens}{comma}{nulla}"
+    freq: 10
+  - val: "{teensComma}"
+    freq: 10
+  - val: "{nulla}{comma}{ones}"
+    freq: 10
+
+hundreds:
+  - val: "{onesNoZ} hundred and {tenVal}"
+    freq: 50
+  - val: "{onesNoZ} hundred {tenVal}"
+    freq: 50
+  - val: "{onesNoZ} {tenValNoZ}"
+    freq: 0
+  - val: "{nulla}{tenVal}"
+    freq: 9
+  - val: "{nulla}{nulla}{onesNoZ}"
+    freq: .9
+  - val: "{nulla}{nulla}{nulla}"
+    freq: .1
+
+hundredVal:
+  - val: "{onesNoZ} hundred and {tenVal}"
+    freq: 50
+  - val: "{onesNoZ} hundred {tenVal}"
+    freq: 50
+  - val: "{onesNoZ} {tenValNoZ}"
+    freq: 50
+  - val: "{nulla}{tenVal}"
+    freq: 9
+  - val: "{nulla}{nulla}{onesNoZ}"
+    freq: .9
+  - val: "{nulla}{nulla}{nulla}"
+    freq: .1
+
+hundredsNoZ:
+  - val: "{onesNoZ} hundred and {tenVal}"
+    freq: 10
+  - val: "{onesNoZ} hundred {tenVal}"
+    freq: 10
+  - val: "{onesNoZ} {tenValNoZ}"
+    freq: 0
+  - val: "{nulla}{tenVal}"
+    freq: 5
+  - val: "{nulla}{nulla}{onesNoZ}"
+    freq: 1
+
+thousands:
+  - val: "{onesNoZ} thousand, {hundreds}"
+    ipa: ","
+    freq: 100
+  - val: "{onesNoZ} thousand and {tenVal}"
+    ipa: ",0"
+    freq: 10
+  - val: "{tenValComma} hundred{nulla}{nulla}"
+    freq: 1
+  - val: "{tenValComma} {tenValNoZ}"
+    freq: 80
+
+hundredThou:
+  - val: "{hundredsNoZ} thousand, {hundreds}"
+    ipa: ","
+    freq: 999
+  - val: "{nulla}{nulla}{nulla}{comma}{hundreds}"
+    freq: 1
+  - val: "{hundredsNoZ}, {hundreds}"
+    ipa: ","
+    freq: 0
+
+millions:
+  - val: "{onesNoZ} million, {hundredThou}"
+    ipa: ","
+    freq: 1
+  - val: "{tenVal} million, {hundredThou}"
+    ipa: ","
+    freq: 10
+  - val: "{hundreds} million, {hundredThou}"
+    ipa: ","
+    freq: 100
+  - val: "{nulla}{comma}{hundredThou}"
+    freq: .1
+
+digits:
+  - val: "{ones} {digits}"
+    freq: 4
+  - val: "{ones}"
+    freq: 1
+
+phone:
+  - val: "{phoneNumber}"
+
+phoneNumber:
+  - val: "{areaCode}{phoneExchange}{phoneLine}"
+    freq: 100
+  - val: "{internationalPhoneNumber}"
+    freq: 10
+  - val: "{phoneExchange}{phoneLine}"
+    freq: 10
+  - val: "{onesZ} {onesZ} {onesZ}"
+    freq: 1
+
+areaCode:
+  - val: "{areaCodeStart}{phoneExchange}{areaCodeEnd}"
+    freq: 10
+
+phoneExchange:
+  - val: "{onesZ} {onesZ} {onesZ}, "
+
+phoneLine:
+  - val: "{dash}{onesZ} {onesZ} {onesZ} {onesZ}"
+    freq: 100
+
+areaCodeStart:
+  - val: ""
+    ipa: "("
+
+areaCodeEnd:
+  - val: ""
+    ipa: ") "
+
+dash:
+  - val: ""
+    ipa: "-"
+
+internationalPhoneNumber:
+  - val: "{internationalPhoneNumberPrefix}{onesZ} {onesZ} {onesZ},{space}{onesZ} {onesZ} {onesZ},{space}{onesZ} {onesZ} {onesZ} {onesZ}"
+
+internationalPhoneNumberPrefix:
+  - val: "plus one, "
+    ipa: "+1 "
