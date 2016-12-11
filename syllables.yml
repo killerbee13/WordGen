@@ -1,4 +1,4 @@
-﻿# Base tags, only ones that are hardcoded
+# Base tags, only ones that are hardcoded
 replacement: # Only acts on "val"
     # Arbitrarily, U+E000 (private use area A) is for duplication
   - - m: '(.)\ue000'
@@ -8,29 +8,24 @@ replacement: # Only acts on "val"
     # English digraphs (no-op)
   - - m: '(t|s|c|p);h'
       r: '\1;h'
-    # "růṙ" is not valid/equivalent to just "ůṙ"
-    # - m: 'růṙ'
-      # r: 'ůṙ'
-    # De-diphthongization (apply diaeresis)
+  # De-diphthongization (apply diaeresis)
   # - - m: "([aeiouů]\u0308?);([aeiouů])"
       # r: "\\1;\\2\u0308"
-  # S-related digraph detection (no-op)
-  - - m: 's;([ptknml])'
-      r: 's;\1'
-    - m: 's([ptknml]);'
-      r: 's\1;'
-    - m: ';s([ptknml])'
-      r: ';s\1'
+  - - m: "([aeiou]\u0308?);([aeiou])"
+      r: "\\1;\\2\u0308"
+  # - - m: "([a]\u0308?);([io])"
+      # r: "\\1;\\2\u0308"
   # Clean up generation artifacts
     # delete initial ;
   - - m: '^;'
       r: ''
-    # non-final ;
-    - m: ';(.)'
-      r: "'\\1"
     # Clear final ;
-  - - m: ';'
+    - m: ';$'
       r: ''
+    # non-final ;
+  - - m: ';'
+      # r: "'"
+      r: ""
 
 replaceIPA:
   - - m: ';;'
@@ -40,15 +35,14 @@ replaceIPA:
     # tč is not a long consonant; delete
   - - m: "t;(tʃ)"
       r: ';\1'
+    - m: "d;(dʒ)"
+      r: ';\1'
     # Long consonant application
   - - m: '([pbkgtdszɸβnml]);\1'
       r: '\1ː'
     # ůṙ reduction
     - m: 'əɚ'
       r: 'ɚ'
-    # "růṙ" is not valid/equivalent to just "ůṙ"
-    # - m: 'rɚ'
-      # r: 'ɚ'
     # VC;V → V;CV
     - m: '([aeiouəɚɪʊ]ː?)([pbkgtdszɸβnml]);([aeiouəɚɪʊ])'
       r: '\1;\2\3'
@@ -80,19 +74,12 @@ replaceIPA:
     - {m: 't;s', r: 'sː'}
     - {m: 'd;z', r: 'zː'}
   # IPA uses '.' to break syllables
-  - - m: ';'
+  - - m: ';$'
+      r: ''
+    - m: ';'
       r: '.'
 
-# Used to break up syllables (. not used because of regex difficulty)
-.:
-  - {val: ";", ipa: ";"}
-
 # End base tags
-root:
-  - val: ";{Word};"
-    ipa: "/"
-  #- val: ".{WeakVowel}{.}{RVowel}."
-
 
 # Note: ipa is inserted for every literal in the val. You are free to use this
   # to your advantage. If this is undesirable, then decompose your references
@@ -103,72 +90,15 @@ root:
   # This reference file generally bases them on 1 and prefers integers in most
     # cases for neatness, but could just as easily have phrased them all as
     # percentages.
-Word:
-  - val: "{WeakSyllable}{.}{StrSyllable}"
-    freq: d1
-  - val: "{StrSyllable}"
-    freq: d1
-  - val: "{StrSyllable}{.}{StrSyllable}"
-    freq: d.7
-    # The IPA . is inserted for both syllables
-  - val: "{StrSyllable}{.}{WeakSyllable}{.}{StrSyllable}"
-    freq: d.5
-  - val: "{WeakSyllable}{.}{Word2}"
-    freq: d0.7
-  - val: "{StrSyllable}{.}{Word2}"
-    freq: d1.5
 
-# Tail recursive, shouldn't create words that are too long
-# after the first few, length-chance is negative-exponential
-Word2:
-  - val: "{WeakSyllable}{.}{StrSyllable}"
-    freq: d2
-  - val: "{StrSyllable}"
-    freq: d1.5
-  - val: "{WeakSyllable}{.}{Word2}"
-    freq: d0.7
-  - val: "{StrSyllable}{.}{Word2}"
-    freq: d0.8
+# Used to break up syllables (. not used because of regex difficulty)
+.:
+  - {val: ";", ipa: ";"}
 
-# Not used (yet)
-Iamb:
-  - val: ";{WeakSyllable}{.}{StrSyllable};"
-    freq: d1
-
-longConsonantBisyllable:
-  - val: ""
-
-StrSyllable:
-  - val: "{Onset}{FullVowelNC}"
-    freq: d4
-  - val: "{FullVowelNC}"
-    freq: d0.75
-  - val: "{Onset}{FullVowel}{AnyCoda}"
-    freq: d2
-  - val: "{FullVowel}{AnyCoda}"
-    freq: d0.5
-  - val: "{Onset}{LVowel}{LCoda}"
-    freq: d0 
-    # 0.2
-
-WeakSyllable:
-  - val: "{Onset}{WeakVowel}{AnyCoda}"
-    freq: d12
-  - val: "{WeakVowel}{AnyCoda}"
-    freq: d4
-  - val: "{Onset}{LVowel}{LCoda}"
-    freq: d0
-    # 1.2
-  - val: "{LVowel}{LCoda}"
-    freq: d0
-    # .4
-
-# infinity descendants (1092454^depth*16 unique)
 Noun:
-  - val: ";{NounStem}{.}{NounInflections};"
+  - val: ";{NounStem}{NounInflections};"
     ipa: "/"
 
-# infinity descendants (1092454^depth unique)
 NounStem:
   - val: "{NounStem2}{.}{LexicalRoot}"
     freq: d3
@@ -178,50 +108,39 @@ NounStem2:
     freq: d1.5
   - val: "{LexicalRoot}"
 NounStem3:
-  - val: "{NounStem3}{.}{LexicalRoot}"
+  - val: "{NounStem4}{.}{LexicalRoot}"
     freq: d0.75
   - val: "{LexicalRoot}"
+NounStem4:
+  - val: "{NounStem4}{.}{LexicalRoot}"
+    freq: d0.25
+  - val: "{LexicalRoot}"
 
-# 1136982 descendants (1092454 unique)
 LexicalRoot:
   - val: "{Onset}{FullVowel}"
-    freq: d4
+    freq: d3
   - val: "{Onset}{WeakVowel}{AnyCoda}"
     freq: d1
   - val: "{Onset}{WeakVowel}{.}{Onset}{FullVowel}"
-    freq: d0.2
+    freq: d0.5
   - val: "{Onset}{WeakVowel}{AnyCoda}{.}{Onset}{FullVowel}"
     freq: d0.1
   - val: "{Onset}{WeakVowel}{GemCons}{FullVowel}"
-    freq: d0.1
-# For counting
-LexicalRoot.0:
-  - val: "{LexicalRoot.1}"
-    freq: d4
-  - val: "{LexicalRoot.2}"
     freq: d1
-  - val: "{LexicalRoot.3}"
-    freq: d0.2
-  - val: "{LexicalRoot.4}"
+  - val: "{FullVowel}{AnyCoda}"
     freq: d0.1
-  - val: "{LexicalRoot.5}"
-    freq: d0.1
-LexicalRoot.1:
-  - val: "{Onset}{FullVowel}"
-LexicalRoot.2:
-  - val: "{Onset}{WeakVowel}{AnyCoda}"
-LexicalRoot.3:
-  - val: "{Onset}{WeakVowel}{.}{Onset}{FullVowel}"
-LexicalRoot.4:
-  - val: "{Onset}{WeakVowel}{AnyCoda}{.}{Onset}{FullVowel}"
-LexicalRoot.5:
-  - val: "{Onset}{WeakVowel}{GemCons}{FullVowel}"
+  - val: "{FullVowel}"
+    freq: d0.05
 
-# 16 descendants
 NounInflections:
-  - val: "{Gender};{Count};{Plural};{Case}"
-    ipa: ";"
+  - val: "{Count}{Gender}{Plural}{Case}"
+    ipa: ""
     freq: d1
+
+Count:
+  - freq: d4
+  - val: "{.}mat"
+    ipa: "mat"
 
 Gender:
   - val: "{Gender/I}"
@@ -231,28 +150,26 @@ Gender:
   - val: "{Gender/D}"
     freq: d1
 Gender/I:
-  - val: ""
-    freq: d8
+  - {}
 Gender/A:
-  - val: "se"
+  - val: "{.}se"
     ipa: "se"
     freq: d3
-  - val: "i"
+  - val: "{.}i"
     ipa: "i"
     freq: d1.5
 Gender/D:
-  - val: "taṙ"
+  - val: "{.}taṙ"
     ipa: "taɚ"
+    freq: d0
+  - val: "{.}tif"
+    ipa: "tiɸ"
     freq: d1
 
-Count:
-  - freq: d4
-  - val: "mat"
-    ipa: "mat"
-
 Plural:
-  - freq: d3
-  - val: "{Vowel:0 0 0 0 0 1 0 0 0}"
+  - freq: d5
+  - val: "{.}a"
+    ipa: a
 
 Case: [{}]
 
@@ -260,48 +177,41 @@ GemCons:
   - val: "{AnyCoda}\ue000"
     ipa: "ː"
 
-# 11 descendants
 Vowel:
+  # - val: "{Vowel:5 17 16 26 10 19 7 6}"
   - val: "{Vowel.Schwa}"
   - {val: "u", ipa: "u"}
   - {val: "o", ipa: "o"}
-  - {val: "i", ipa: "i"}
-  - {val: "e", ipa: "e"}
   - {val: "a", ipa: "a"}
-  - {val: "ao", ipa: "aʊ"}
+  - {val: "e", ipa: "e"}
+  - {val: "i", ipa: "i"}
   - {val: "ai", ipa: "aɪ"}
-  - val: "{RVowel}"
-  - val: "{LVowel}"
-    freq: 0
+  - {val: "ao", ipa: "aʊ"}
 Vowel.Schwa:
   - val: ů
     ipa: ə
 
-WeakVowel:
-  - val: "{Vowel:2 1.75 1.25 .5 1 .75 .5 .5 1.25}"
 FullVowel:
-  - val: "{Vowel:.33 1 1.5 1 1.5 2 .75 .75 3.5}"
-# Certain vowels are more common in open syllables than closed
-# 19 descendants (11 unique)
-FullVowelNC:
-  - val: "{FullVowel}"
-    freq: d15
-  - val: "{Vowel:0 1.5 1 1.5 1 0 .66 .66 0}"
-    freq: d19
-
-# 3 descendants
-RVowel:
-  - val: "{Vowel:4 0 3 0 0 3 0 0 0 0}ṙ"
+  # - val: "{Vowel:.33 1 1.5 1 1.5 2 .75 .75 3.5}"
+  - val: "{Vowel:1 6 6 16 9 10 3 7}"
+    freq: d58
+  - val: "{Vowel:3 0 1 6 0 0 0 0 0}ṙ"
     ipa: ɚ
+    freq: d10
+WeakVowel:
+  # - val: "{Vowel:2 1.75 1.25 .5 1 .75 .5 .5 1.25}"
+  - val: "{Vowel:5 10 10 10 2 9 3 1}"
+    freq: d50
+  - val: "{Vowel:1 0  1  2  0 0 0 0}ṙ"
+    ipa: ɚ
+    freq: d4
 
-#8 descendants
-LVowel:
-  - val: "{Vowel:3 .2 2 .2 .2 2 .5 .5 0 0}ḷ"
-    ipa: l
-
-# 2 descendants
+# Unused
 Dipthong:
-  - val: "{Vowel:0 0 0 0 0 0 1.125 1 0 0}"
+  # ai
+  - val: "{Vowel:0 0 0 0 0 0 1 0}"
+  # ao
+  - val: "{Vowel:0 0 0 0 0 0 0 1}"
 
 # 23 descendants
 Consonant:
@@ -324,29 +234,21 @@ Consonant:
   - {val: "h", ipa: "h"}
   - {val: "r", ipa: "r"}
 
-#23 descendants
-Onset:             # p   b   k  g   t   d s   z   f   v  č  j  n     m     l   h   r
-  - val: "{Consonant:1.5 .75 2 .95 1.5 1 1.5 .75 1.6 .8 .7 .3 1.225 1.225 1.4 1.2 1.4}"
-    freq: d20
-  - val: "s{SOnset}"
+Onset:               # p   b   k  g   t   d s   z   f   v  č  j  n     m     l   h   r
+  # - val: "{Consonant:1.2 .75 2 .95 1.5 1 1.5 .75 1.6 .8  1 .6 1.225 1.225 1.4 1.2 1.4}"
+
+                    # p b k  g t  d s  z f v č j n m l  h r
+  - val:  "{Consonant:3 3 12 4 13 4 11 5 7 6 5 3 9 4 12 7 7}"
+    freq: d115
+  - val: "s{Consonant:4 0 4  0 4  0 0  0 0 0 0 0 1 1 1  0 0}"
     ipa: "s"
-    freq: d0.75
+    freq: d15
 
-# 6 descendants
-SOnset:            # p   b k   g t   d s z f v č j n     m     l   h r sC
-  - val: "{Consonant:1.5 0 1.5 0 1.5 0 0 0 0 0 0 0 1.125 1.125 .25 0 0 0}"
-
-# 16 descendants
-AnyCoda:           # p b k   g  t   d  s   z   f  v   č j n  m  l  h r
-  - val: "{Consonant:1 1 1.3 .7 1.3 .7 .25 .15 1.3 .7 0 0 .8 .8 .7 0 0}"
-    freq: d10.7
-  - val: "s{SCoda}"
+AnyCoda:
+  # - val: "{Consonant:1 1 1.3 .7 1.3 .7 .25 .15 1.3 .7 0 0 .8 .8 .7 0 0}"
+                    # p b k g t d s z f v č j n m l  h r
+  - val:  "{Consonant:2 2 4 1 8 4 5 1 5 2 0 0 7 4 11 0 0}"
+    freq: d56
+  - val: "s{Consonant:1 0 2 0 1 0 0 0 0 0 0 0 0 0 0  0 0}"
     ipa: "s"
-    freq: d0.2
-  # "ṙ" is part of vowel, not coda
-
-SCoda:             # p b k g t d s z f v č j n m l h r sC
-  - val: "{Consonant:1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0}"
-
-LCoda:             # p b   k   g   t   d   s  z   f   v  č j n  m  l h r sC
-  - val: "{Consonant:1 1.5 1.3 1.2 1.3 1.2 .5 .35 1.3 .7 0 0 .8 .8 0 0 0 .2}"
+    freq: d4
