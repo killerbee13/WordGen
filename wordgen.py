@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import yaml
 import random
 import time
@@ -223,7 +223,8 @@ def makeWords(Data, n, root, depth_limit=-16, keepHistory=False, KHSep="→"):
 def filterRE(RE):
 	"""Processes regex from file for use.
 	Does not sanitize RE."""
-	return RE+'$'
+	return RE.translate(str.maketrans({'$':'(?=\15)'}))+'$'
+	# return RE.translate({'$':'(?!\15)'})+'$'
 
 def applyRE(Data, word, keepHistory=False, KHSep="→"):
 	"""Applies regular expressions in Data to word."""
@@ -233,7 +234,7 @@ def applyRE(Data, word, keepHistory=False, KHSep="→"):
 				# Produces approximately a 40% speedup.
 				rule["c"] = re.compile(filterRE(rule["m"]))
 			cline = ''
-			for c in word["val"]:
+			for c in word["val"]+'\15':
 				cline += c
 				for rule in stage:
 					# Determine if rule-match matches, then replace
@@ -243,13 +244,14 @@ def applyRE(Data, word, keepHistory=False, KHSep="→"):
 					word["val"] = word["val"] + KHSep + cline
 			else:
 				word["val"] = cline
+		word["val"] = word["val"].translate(str.maketrans('','','\15'))
 	if "replaceIPA" in Data:
 		for stage in Data["replaceIPA"]:
 			for rule in stage:
 				# Produces approximately a 40% speedup.
 				rule["c"] = re.compile(filterRE(rule["m"]))
 			cline = ''
-			for c in word["ipa"]:
+			for c in word["ipa"]+'\15':
 				cline += c
 				for rule in stage:
 					# Determine if rule-match matches, then replace
@@ -259,6 +261,7 @@ def applyRE(Data, word, keepHistory=False, KHSep="→"):
 					word["ipa"] = word["ipa"] + KHSep + cline
 			else:
 				word["ipa"] = cline
+		word["ipa"] = word["ipa"].translate(str.maketrans('','','\15'))
 	return word
 
 def listAll(Data, node, opts = {
