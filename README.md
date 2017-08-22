@@ -91,7 +91,7 @@ Abstractly:
                 1. Globally substitute that regex in the input with the provided string
  8. Otherwise: [Deprecated]
     1. If `replacement` is in the grammar:
-       1. Do 7.1.1 for channel `val` w.r.t. `replacement`
+       1. Do 7.i.a for channel `val` w.r.t. `replacement`
     2. If `replaceIPA` is in the grammar:
-       1. Do 7.1.1 for channel `ipa` w.r.t. `replaceIPA`
+       1. Do 7.i.a for channel `ipa` w.r.t. `replaceIPA`
 
