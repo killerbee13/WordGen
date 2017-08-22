@@ -1,0 +1,77 @@
+Verb:
+  - val: "{VerbRoot}0"
+    def: ".inf"
+  - val: "{VerbRoot}1"
+    def: ".3sPres"
+  - val: "{VerbRoot}2"
+    def: ".1sPres"
+  - val: "{VerbRoot}3"
+    def: ".pPres"
+  - val: "{VerbRoot}4"
+    def: ".sPast"
+  - val: "{VerbRoot}5"
+    def: ".pPast"
+  - val: "{VerbRoot}6"
+    def: ".PresPart"
+  - val: "{VerbRoot}7"
+    def: ".PastPart"
+
+Pronoun:
+  - val: "P1s"  # I/me
+  - val: "P1p"  # we/we
+  - val: "P2"   # you/you
+  - val: "P3si" # it/it
+  - val: "P3sf" # she/her
+  - val: "P3sm" # he/him
+  - val: "P3sn" # xe/xem
+  - val: "P3s"  # they/them
+  - val: "P3p"  # they/them
+  - val: "P3so" # one/one
+
+Sentence:
+  - val: "{Subject}{Predicate}"
+
+Subject:
+  - val: "NA{Pronoun}"
+Object:
+  - val: "NP{Pronoun}"
+
+Predicate:
+  - val: "{Verb}"
+
+VerbRoot:
+  - val: "V#01"
+    def: "is"
+  - val: "V#02"
+    def: "do"
+
+replace:
+  val:
+    - S:
+        V: ["", V]
+      V:
+        "#": ["", V.]
+      V.:
+        '0': ["", V0]
+      V0:
+        '1': ["", V01]
+        '2': ["", V02]
+      V01:
+        '0': ["be", S]
+        '1': ["is", S]
+        '2': ["am", S]
+        '3': ["are", S]
+        '4': ["was", S]
+        '5': ["were", S]
+        '6': ["being", S]
+        '7': ["been", S]
+      V02:
+        '0': ["do", S]
+        '1': ["does", S]
+        '2': ["do", S]
+        '3': ["do", S]
+        '4': ["did", S]
+        '5': ["did", S]
+        '6': ["doing", S]
+        '7': ["done", S]
+      
