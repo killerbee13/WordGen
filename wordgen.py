@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import yaml
 import random
 import time
@@ -7,12 +7,15 @@ import decimal
 import gmpy2
 import optparse
 import copy
+import collections
+
+import pdb
 
 from collections import deque
 from string import *
 
-
-# sep = re.compile()
+sep = re.compile('[^0-9.]+')
+expansionCount = 0
 
 class Path:
 	"""A path to a word."""
@@ -57,6 +60,7 @@ class Path:
 	def getWord(self):
 		"""return word corresponding to self suitably for formatWord()"""
 		# print('get:  '+self._root)
+		# seed = self._data.SwitchingNode.Branch.extract(seed)
 		Node = self._data[self._root][self._branch]
 		sumFreq = sum([decimal.Decimal(decimal.Decimal(x.get("freq",decimal.Decimal('1')))) for x in self._data[self._root]])
 		SNode = {"val": Node.get("val",""), "ipa": Node.get("ipa",""), "freq":(decimal.Decimal(Node.get("freq",decimal.Decimal('1')))/sumFreq)}
@@ -132,13 +136,97 @@ class Path:
 			self._children = []
 		# print('Init: '+root+'['+str(self._branch)+'] '+str([c._str() for c in self._children]))
 
-def chooseFrom(Data, list, depth=-16):
+class SwitchingGraph(collections.UserDict):
+	class SwitchingNode(collections.UserList):
+		class Branch(collections.UserDict):
+			class NodeRef(collections.UserString):
+				def __repr__(self):
+					if self.flist:
+						return "n'"+self.data+':'+','.join(self.flist)+"'"
+					else:
+						return "n'"+self.data+"'"
+				def __init__(self, s, l):
+					self.data = s
+					self.flist = l
+			def extract(self, val):
+				ret = []
+				for s in Formatter().parse(val):
+					if s[0]:
+						ret.append(s[0])
+					if s[1]:
+						nstr = s[1]
+						flist = []
+						if s[2]:
+							# Trim leading garbage
+							_ = re.match(sep,s[2])
+							if _:
+								_ = _.end()
+							# Parse list
+							_ = re.split(sep,s[2][_:])
+							flist = [str(decimal.Decimal(i)) for i in _]
+						ret.append(self.NodeRef(nstr, flist))
+				return ret
+			def __init__(self, branch):
+				# print(repr(branch))
+				# print(repr(branch.get("val","")))
+				# self.val = self.extract(branch.get("val",""))
+				self.data = branch.copy()
+				if isinstance(branch.get("val",""),str):
+					self.data["val"] = self.extract(branch.get("val",""))
+				if "freq" not in branch:
+					self["freq"] = decimal.Decimal(1)
+			def _dump(self):
+				return "{\t"+",\n\t".join([",\n\t".join(C+":"+self.data[C]) for C in self._branch])+"\t}"
+		def __init__(self, branches):
+			self.data = [self.Branch(B) for B in branches]
+		def _dump(self):
+			# return repr(self.data)
+			return [B._dump() for B in self.data]
+	def __init__(self, data):
+		# self.data = {N: self.SwitchingNode(data[N]) for N in data}
+		self.data = dict()
+		for N in data:
+			if N in set(["replace", "replaceIPA", "replacement", "channels"]):
+				continue
+			self.data[N] = self.SwitchingNode(data[N])
+		self.regexes = RegexApplicator(data)
+	def __getitem__(self, key):
+		if isinstance(key, self.SwitchingNode.Branch.NodeRef) and key.flist:
+			node = self.data[key].copy()
+			for i in range(min(len(key.flist),len(node))):
+				d = decimal.Decimal(key.flist[i])
+				node[i]['freq'] = d
+			return node
+		else:
+			return self.data[key]
+	def _dump(self):
+		return "\n".join([N+":\n\t"+'\n\t'.join(self.data[N]._dump()) for N in self._nodes])
+	def toYAML(self):
+		pass
+	def addNode(self, name, branches):
+		self.data[name] = self.SwitchingNode(branches)
+
+class RegexApplicator:
+	"""This class is NYI"""
+	def __init__(self, data):
+		self.data = {}
+		for N in set(["replace", "replaceIPA", "replacement", "channels"]):
+			if N in data:
+				self.data[N] = data[N]
+
+def chooseFrom(Data, list, depth=-16, maxDepth=16):
 	"""Select a random value from the list, recursing on references"""
-	list = [{"val": x.get("val",""), "ipa": x.get("ipa",""), "freq":decimal.Decimal(x.get("freq",decimal.Decimal('1')))} for x in list]
+	# list = [{"val": x.get("val",""), "ipa": x.get("ipa",""), "freq":decimal.Decimal(x.get("freq",decimal.Decimal('1')))} for x in list]
+	global expansionCount
+	expansionCount += 1
+	for x in list:
+		x["val"] = x.get("val","")
+		x["freq"] = decimal.Decimal(x.get("freq",decimal.Decimal('1')))
+		for ch in Data["channels"]:
+			x[ch] = x.get(ch,"")
 	listSum = sum([x["freq"] for x in list])
 	a = decimal.Decimal(random.uniform(0,float(listSum)))
 	stop = 0
-	Rets = []
 	# This needs no normalization because values are never directly compared.
 	for i,c in enumerate([x["freq"] for x in list]):
 		a -= c
@@ -146,122 +234,143 @@ def chooseFrom(Data, list, depth=-16):
 			stop = i
 			break;
 	
-	if depth < 0:
-		# 1+ elements are strings and 1+ elements are references to arrays
-		rets = {"val": "", "ipa": "", "freq": decimal.Decimal(1)/listSum}
-		#If val is empty, insert ipa and bail
+	Rets = []
+	other_channels = list[stop].copy()
+	for _ in set(["val","freq","path"]):
+		other_channels.pop(_,"")
+	if expansionCount >= maxDepth**2:
+		#Expansion limit reached
+		print("wordgen.py: expansion limit reached", file=sys.stderr)
+		rets = {"val": list[stop]["val"], "path": [stop], "freq":list[stop]["freq"]/listSum}
+		for ch in other_channels:
+			rets[ch] = list[stop].get(ch,"")
+		return rets
+	elif depth >= 0:
+		#Recursion limit reached
+		print("wordgen.py: recursion limit reached", file=sys.stderr)
+		rets = {"val": list[stop]["val"], "path": [stop], "freq":list[stop]["freq"]/listSum}
+		for ch in other_channels:
+			rets[ch] = list[stop].get(ch,"")
+		return rets
+	else:
+		rets = {"val": "", "freq": decimal.Decimal(1)/listSum, "path": [stop]}
+		#If val is empty, insert channels and bail
 		if not list[stop]["val"]:
-			rets["ipa"] = list[stop]["ipa"]
-			return {"val": "", "ipa": list[stop]["ipa"], "path": [stop], "freq":list[stop]["freq"]/listSum}
+			for ch in other_channels:
+				rets[ch] = list[stop].get(ch,"")
+			return rets
 		#Determine which is a string and which is a reference
 		else:
-			rets["path"] = [stop]
 			for s in Formatter().parse(list[stop]["val"]):
 				#Recurse on reference and insert results into string
 				if s[1]:
 					node = copy.deepcopy(Data[s[1]])
 					if s[2]:
-						flist = re.split('[^0-9.]+',s[2])
+						_ = re.match(sep,s[2])
+						if _:
+							_ = _.end()
+						flist = re.split(sep,s[2][_:])
 						nstr = s[1]
 						for i in range(min(len(flist),len(node))):
 							d = decimal.Decimal(flist[i])
 							node[i]['freq'] = d
 							nstr += ','+str(d)
 						Data[nstr] = node
-						# flist = [decimal.Decimal(f) for f in re.split('[^0-9.]+',s[2])]
-						# for i in range(len(flist)):
-							# node[i][freq] = flist[i]
 					# Throws a KeyError on invalid reference. Not caught because
 						# the Python default error message is good enough and there's
 						# nothing for the code to do with an error.
 					#Fill reference
-					tmp = chooseFrom(Data, node, depth+1)
+					tmp = chooseFrom(Data, node, depth+1, maxDepth)
 					
 					rets["val"] = rets["val"] + s[0] + tmp["val"]
 					rets["freq"] = rets["freq"]*tmp["freq"]
 					rets["path"].append(tmp["path"])
+
 					if s[0]:
 						#If reference+literal text, insert 
-						rets["ipa"] = rets["ipa"] + list[stop]["ipa"] + tmp["ipa"]
+						for ch in other_channels:
+							rets[ch] = rets.get(ch,"") + list[stop].get(ch,"") + tmp.get(ch, "")
 					else:
-						rets["ipa"] = rets["ipa"] + tmp["ipa"]
+						for ch in other_channels:
+							rets[ch] = rets.get(ch,"") + tmp.get(ch, "")
 				#No reference, only literal text
 				else:
 					rets["val"] = rets["val"] + s[0]
-					rets["ipa"] = rets["ipa"] + list[stop]["ipa"]
-			return {"val": rets["val"], "ipa": rets["ipa"], "path": rets["path"], "freq":rets["freq"]}
-	else:
-		#Recursion depth reached
-		print("wordgen.py: recursion depth reached", file=sys.stderr)
-		#return list[stop]
-		return {"val": list[stop]["val"], "ipa": list[stop]["ipa"], "path": [stop], "freq":list[stop]["freq"]/listSum}
-
-def makeWords(Data, n, root, depth_limit=-16, keepHistory=False, KHSep="→"):
-	"""Generate a list of n random descendants of {root}"""
-	# For very complex data files, the depth limit may need to be increased.
-		# 16 should handle up to ~6-8 syllables for any sensible language
-		# If you see {Syllable} or the like in the output, either you have a
-		# reference loop or you need to increase this.
-	# Assuming a roughly tail-recursive file:
-	# num_syllables ~= depth_limit - (1 + syllable_complexity)
-		# where syllable_complexity (~4.5 for Cūrórayn) is the average number
-		# of recursions between a {Syllable} node and an output string
-		# The constant 1 is for the root node,
-	# The theoretical maximum is node_width^depth_limit which is obviously much
-		# greater, so "wide" data files are able to produce much more output.
-			# See recursive.yml for a simple example of this with node_width=2
-		# The limit is mostly there to avoid loops, though, so this is actually
-		# alright. Increase it or decrease it if needed.
-	
-	# TL;DR: Computation is dependent on total expansions, which is less
-		# than (is bounded by) exponential in depth_limit.
-	for x in range(n):
-		word = chooseFrom(Data, Data[root], depth_limit)
-		yield applyRE(Data, word, keepHistory, KHSep)
-	return
+					for ch in other_channels:
+						rets[ch] = rets.get(ch,"") + list[stop].get(ch,"")
+			return rets
 
 def filterRE(RE):
-	"""Processes regex from file for use.
-	Does not sanitize RE."""
-	return RE.translate(str.maketrans({'$':'(?=\15)'}))+'$'
-	# return RE.translate({'$':'(?!\15)'})+'$'
+	"""Processes regex from file for use. Currently no-op."""
+	return RE
 
-def applyRE(Data, word, keepHistory=False, KHSep="→"):
+def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 	"""Applies regular expressions in Data to word."""
-	if "replacement" in Data:
-		for stage in Data["replacement"]:
-			for rule in stage:
-				# Produces approximately a 40% speedup.
-				rule["c"] = re.compile(filterRE(rule["m"]))
-			cline = ''
-			for c in word["val"]+'\15':
-				cline += c
-				for rule in stage:
-					# Determine if rule-match matches, then replace
-					cline = rule["c"].sub(rule["r"], cline)
-			if keepHistory:
-				if word["val"] != cline:
-					word["val"] = word["val"] + KHSep + cline
+	def doStagedMatchReplace(regexes, word):
+		ret = [word]
+		for stage in regexes:
+			if "S" in stage:
+				# pdb.set_trace()
+				state = "S"
+				cline = ""
+				# print("begin: "+ret[-1])
+				if "reversed" in stage and stage["reversed"]&1:
+					ret[-1] = ret[-1][::-1]
+				for c in ret[-1]:
+					if c in stage[state]:
+						cline += stage[state][c][0]
+						if len(stage[state][c])>1:
+							state = stage[state][c][1]
+					else:
+						if "default" in stage[state]:
+							cline += stage[state]["default"][0]
+							if len(stage[state]["default"])>1:
+								state = stage[state]["default"][1]
+						else:
+							cline += c
+							if "return" in stage[state]:
+								state = stage[state]["return"]
+				if "end" in stage[state]:
+					cline += stage[state]["end"]
+				if "reversed" in stage and stage["reversed"]&1:
+					ret[-1] = ret[-1][::-1]
+				if "reversed" in stage and stage["reversed"]&2:
+					cline = cline[::-1]
+				ret.append(cline)
 			else:
-				word["val"] = cline
-		word["val"] = word["val"].translate(str.maketrans('','','\15'))
-	if "replaceIPA" in Data:
-		for stage in Data["replaceIPA"]:
-			for rule in stage:
-				# Produces approximately a 40% speedup.
-				rule["c"] = re.compile(filterRE(rule["m"]))
-			cline = ''
-			for c in word["ipa"]+'\15':
-				cline += c
 				for rule in stage:
-					# Determine if rule-match matches, then replace
+					if "c" in rule:
+						break
+					rule["c"] = re.compile(filterRE(rule["m"]))
+				cline = ret[-1]
+				for rule in stage:
 					cline = rule["c"].sub(rule["r"], cline)
-			if keepHistory:
-				if word["ipa"] != cline:
-					word["ipa"] = word["ipa"] + KHSep + cline
-			else:
-				word["ipa"] = cline
-		word["ipa"] = word["ipa"].translate(str.maketrans('','','\15'))
+				ret.append(cline)
+				# cline = ''
+				# for c in (ret[-1]+endToken):
+					# cline += c
+					# for rule in stage:
+						# cline = rule["c"].sub(rule["r"], cline)
+				# ret.append(cline[:cline.rfind(endToken)])
+		return ret
+	ret = {}
+	# for channel in word:
+		# ret[channel] = [word[channel]]
+	if "replace" in Data:
+		for channel in Data["replace"]:
+			if channel in word:
+				ret[channel] = [word[channel]]+doStagedMatchReplace(Data["replace"][channel], word[channel])
+	else: # compatibility
+		if "replacement" in Data:
+			ret["val"] = [word["val"]]+doStagedMatchReplace(Data["replacement"], word["val"])
+		if "replaceIPA" in Data:
+			ret["ipa"] = [word["ipa"]]+doStagedMatchReplace(Data["replaceIPA"], word["ipa"])
+	if keepHistory:
+		for channel in ret:
+			word[channel] = KHSep.join(ret[channel])
+	else:
+		for channel in ret:
+			word[channel] = ret[channel][-1]
 	return word
 
 def listAll(Data, node, opts = {
@@ -343,7 +452,11 @@ def listAllR(Data, node, depth, ignoreZeros, path=[], flist=None):
 						nstr = s[1]
 						node = Data[s[1]]
 						if s[2]:
-							flist = re.split('[^0-9.]+',s[2])
+							_ = re.match('[^0-9.]+',s[2])
+							if _:
+								_ = _.end()
+							flist = re.split('[^0-9.]+',s[2][_:])
+							nstr = s[1]
 							for i in range(min(len(flist),len(node))):
 								d = decimal.Decimal(flist[i])
 								node[i]['freq'] = d
@@ -418,46 +531,61 @@ def DFSPrint(Node, freq=1):
 
 def formatWord(word, opts, formatStr=None):
 	'''Print words'''
-	if formatStr:
-		ipa = ""
-		path = ""
-		freq = ""
-		if opts.get("ipa",False):
-			ipa = word["ipa"]
-		if opts.get("path",False):
-			path = printPath(word["path"])
-		if opts.get("freq",False):
-			freq = word["freq"]
-		return formatStr.format(val=word["val"], ipa=ipa, path=path, freq=freq)
+	if formatStr is not None:
+		# dbgWord = word.copy()
+		# del dbgWord["path"]
+		# del dbgWord["freq"]
+		# print(dbgWord)
+		return formatStr.format(**word)
 	else:
-		opts = { "ipa":  opts.get("ipa",  False),
-					"path": opts.get("path", False),
-					"HTML": opts.get("HTML", False),
-					"freq": opts.get("freq", False),
-				}
-		return formatWord(word, opts, 
-		[	"{val}",																	# -
-			"{val}: \t{ipa}",														# -p
-			"{val} \t{path}",														# -P
-			"{val}: \t{ipa} \t{path}",											# -pP
-			"<tr><td>{val}</td></tr>",											# -H
-			"<tr><td>{val}</td><td>{ipa}</td></tr>",						# -pH
-			"<tr><td>{val}</td><td>{path}</td></tr>",						# -PH
-			"<tr><td>{val}</td><td>{ipa}</td><td>{path}</td></tr>",	# -pPH
-			"{val} \t{freq}",														# -f
-			"{val}: \t{ipa} \t{freq}",											# -pf
-			"{val} \t{path} \t{freq}",											# -Pf
-			"{val}: \t{ipa} \t{path} \t{freq}",								# -pPf
-			"<tr><td>{val}</td><td>{freq}</td></tr>",						# -Hf
-			"<tr><td>{val}</td><td>{ipa}</td><td>{freq}</td></tr>",	# -pHf
-			"<tr><td>{val}</td><td>{path}</td><td>{freq}</td></tr>",	# -PHf
-																						# -pPHf
-			"<tr><td>{val}</td><td>{ipa}</td><td>{path}</td><td>{freq}</td></tr>",
-		][int(opts.get("ipa",False))
-			+int(opts.get("path",False))*2
-			+int(opts.get("HTML",False))*4
-			+int(opts.get("freq",False))*8
-		])
+		if not opts["HTML"]:
+			fstr = ""
+			for ch in opts["channels"]:
+				fstr += "{"+ch+"}\t"
+				if ch == "path":
+					word[ch] = printPath(word.get(ch,""))
+				else:
+					word[ch] = word.get(ch,"")
+		else:
+			fstr = "<tr>"
+			for ch in opts["channels"]:
+				fstr += "<td>{"+ch+"}</td>"
+				if ch == "path":
+					word[ch] = printPath(word.get(ch,""))
+				else:
+					word[ch] = word.get(ch,"")
+			fstr += "</tr>"
+		word["val"] = word.get("val","")
+		return formatWord(word,opts,fstr)
+		
+		# opts = { "ipa":  opts.get("ipa",  False),
+					# "path": opts.get("path", False),
+					# "HTML": opts.get("HTML", False),
+					# "freq": opts.get("freq", False),
+				# }
+		# return formatWord(word, opts, 
+		# [	"{val}",																	# -
+			# "{val}: \t{ipa}",														# -p
+			# "{val} \t{path}",														# -P
+			# "{val}: \t{ipa} \t{path}",											# -pP
+			# "<tr><td>{val}</td></tr>",											# -H
+			# "<tr><td>{val}</td><td>{ipa}</td></tr>",						# -pH
+			# "<tr><td>{val}</td><td>{path}</td></tr>",						# -PH
+			# "<tr><td>{val}</td><td>{ipa}</td><td>{path}</td></tr>",	# -pPH
+			# "{val} \t{freq}",														# -f
+			# "{val}: \t{ipa} \t{freq}",											# -pf
+			# "{val} \t{path} \t{freq}",											# -Pf
+			# "{val}: \t{ipa} \t{path} \t{freq}",								# -pPf
+			# "<tr><td>{val}</td><td>{freq}</td></tr>",						# -Hf
+			# "<tr><td>{val}</td><td>{ipa}</td><td>{freq}</td></tr>",	# -pHf
+			# "<tr><td>{val}</td><td>{path}</td><td>{freq}</td></tr>",	# -PHf
+																						# # -pPHf
+			# "<tr><td>{val}</td><td>{ipa}</td><td>{path}</td><td>{freq}</td></tr>",
+		# ][int(opts.get("ipa",False))
+			# +int(opts.get("path",False))*2
+			# +int(opts.get("HTML",False))*4
+			# +int(opts.get("freq",False))*8
+		# ])
 
 def printPath(path):
 	def recurse(path):
@@ -546,7 +674,11 @@ def followPath(Data, node, path):
 			rets["ipa"] = rets["ipa"] + SNode["ipa"]
 	return rets
 		
-
+def toBNF(Data, StartDef):
+	nodes = Data.copy()
+	for N in set(["replace", "replaceIPA", "replacement", "channels"]):
+		nodes.pop(N)
+	
 
 #if 2 < len(sys.argv) < 7:
 	#sys.argv.extend([0]*(7-len(sys.argv)))
@@ -558,6 +690,7 @@ def followPath(Data, node, path):
 	# print(listAll(yaml.safe_load(open(sys.argv[1],'r', encoding="utf8")), sys.argv[2], int(sys.argv[6])))
 
 def main():
+	global expansionCount
 	# class Dec(decimal.Decimal, yaml.YAMLObject):
 		# yaml_loader = yaml.SafeLoader
 		# yaml_dumper = yaml.SafeDumper
@@ -581,48 +714,74 @@ def main():
 	
 	parser = optparse.OptionParser(
 			usage="usage: %prog [options] <datafile> <root> [command]\n"
-			"  [command] may be either 'gen' [default] or 'list'")
+			"  [command] may be either 'gen' [default], 'list', or 'diag'")
 	
 	genGroup = optparse.OptionGroup(parser, "Options for gen")
 	listGroup = optparse.OptionGroup(parser, "Options for list")
+	diagGroup = optparse.OptionGroup(parser, "Options for diag")
 	debugGroup = optparse.OptionGroup(parser, "Debugging options")
 	
-	parser.add_option("-p", "--ipa", dest="IPAmode",
-			action="store_true", default=False,
-			help="enable phonetic transcriptions")
+	parser.add_option("-c", "--channel", dest="channels",
+			action="append", metavar="CHANNEL", default=[],
+			help="print CHANNEL (can be used multiple times)")
+	parser.add_option("-p", "--ipa", dest="channels",
+			action="append_const", const="ipa",
+			help="print IPA transcriptions (-c ipa)")
 	parser.add_option("-d", "--depth", dest="depth",
 			type="int", default=16,
 			help="maximum recursion depth [default: %default]")
 	parser.add_option("-H", "--html", dest="HTMLmode",
 			action="store_true", default=False,
 			help="write output as HTML table")
-	
 	genGroup.add_option("-n", dest="num",
 			type="int", default=1, metavar="numWords",
 			help="number of words to generate")
+	genGroup.add_option("-V", dest="noVal",
+			action="store_true", default=False,
+			help="Suppress implicit 'val' printing")
+	genGroup.add_option("-q", "--quiet", dest="quiet",
+			action="store_true", default=False,
+			help="Disable printing of the header")
+	genGroup.add_option("-F", "--fmt", dest="fstr",
+			type="string", metavar="FMT_STR", default=[],
+			help="Format string for printing words")
 	parser.add_option_group(genGroup)
 	
 	listGroup.add_option("-0", "--listZeros", dest="ignoreZeros",
 			action="store_false", default=True,
 			help="include 0-frequency values in list")
-	listGroup.add_option("-f", "--showFreqs", dest="showFreqs",
-			action="store_true", default=False,
-			help="show calculated frequencies in list")
 	parser.add_option_group(listGroup)
 	
-	debugGroup.add_option("-P", "--path", dest="printPaths",
+	diagGroup.add_option("--regex", dest="dbgRE",
 			action="store_true", default=False,
+			help="Dump regular expressions after filtering.")
+	diagGroup.add_option("--nodes", dest="dbgNodes",
+			action="store_true", default=False,
+			help="Dump switching nodes after filtering.")
+	diagGroup.add_option("--retest", dest="dbgRETest",
+			action="store_true", default=False,
+			help="Apply regexes for CHANNELS to input.")
+	diagGroup.add_option("--bnf", dest="dbgBNFExport",
+			action="store_true", default=False,
+			help="Export to BNF (val only).")
+	parser.add_option_group(diagGroup)
+	
+	debugGroup.add_option("-P", "--path", dest="channels",
+			action="append_const", const="path",
 			help="print paths for generated words")
 	debugGroup.add_option("-K", "--keepHistory", dest="keepHistory",
 			action="store_true", default=False,
 			help="save every step of regex application\n"
 			"May be hard to read.")
 	debugGroup.add_option("--KHSep", dest="KHSep",
-			type="string", default="→", metavar="SEP",
+			type="string", default=" → ", metavar="SEP",
 			help="what to insert between regex applications")
 	debugGroup.add_option("-r", "--seed", dest="seed",
 			action="store", default=None, 
 			help="random seed")
+	debugGroup.add_option("-f", "--showFreqs", dest="showFreqs",
+			action="store_true", default=False,
+			help="show calculated frequencies (-c freq)")
 	parser.add_option_group(debugGroup)
 	
 	(options, args) = parser.parse_args()
@@ -631,15 +790,27 @@ def main():
 		parser.error("Not enough arguments")
 	if len(args) < 3:
 		args.append("gen")
+	if "ipa" in options.channels:
+		options.IPAmode = True
+	else:
+		options.IPAmode = False
+	if "path" in options.channels:
+		options.path = True
+	else:
+		options.path = False
+	if "freq" in options.channels:
+		options.showFreqs = True
+	if not options.noVal:
+		options.channels = ['val'] + options.channels
 	opts = {
-		"ipa":options.IPAmode,
 		"HTML":options.HTMLmode,
-		"path":options.printPaths,
+		"path":options.path,
 		"depth":-1*options.depth,
 		"keepHistory":options.keepHistory,
 		"keepHistorySep":options.KHSep,
 		"ignoreZeros":options.ignoreZeros,
 		"freq":options.showFreqs,
+		"channels":options.channels,
 	}
 	random.seed(options.seed)
 	Data = yaml.safe_load(open(args[0],'r', encoding="utf8"))
@@ -647,13 +818,13 @@ def main():
 	if args[2] == "gen":
 		if False: # Debug stuff
 			try:
-				word = list(makeWords(Data, 1, args[1],-1*options.depth, options.keepHistory, options.KHSep))[0]
+				word = applyRE(Data, chooseFrom(Data, Data[args[1]], -1*options.depth, options.depth), options.keepHistory, options.KHSep)
 				# print(word["path"])
 				# print(formatWord(word, opts))
 				P = Path(Data, args[1], word["path"])
 				# print(repr(P))
 				# print('P'+P._str())
-				# print('O'+printPath(word["path"]))
+				print('O'+printPath(word["path"]))
 				# print('L'+printPath(P._list()))
 				print(P._list())
 				print(P.getWord())
@@ -668,19 +839,53 @@ def main():
 				# printWords(words, options.IPAmode, options.HTMLmode, options.printPaths)
 			except Exception as e:
 				print(e)
+		Header = ""
+		if "channels" not in Data:
+			Data["channels"] = {"val":"Words","ipa":"IPA","path":"Path"}
 		if options.HTMLmode:
-			print("<table><tr><th>Words</th>")
-			if options.IPAmode:
-				print("<th>IPA</th>")
-			if options.printPaths:
-				print("<th>Path</th>")
-			print("</tr>")
+			Header = "<table><tr>"
+			for ch in options.channels:
+				Header += "<th>"+Data["channels"].get(ch,"")+"</th>"
+			Header += "</tr>"
+			print(Header)
+		else:
+			if not options.quiet:
+				for ch in options.channels:
+					Header += Data["channels"].get(ch,"")+'\t'
+				print(Header)
+				print('-'*40)
 		for i in range(options.num):
-			word = list(makeWords(Data, 1, args[1],-1*options.depth, options.keepHistory, options.KHSep))[0]
+			word = applyRE(Data, chooseFrom(Data, Data[args[1]], -1*options.depth, options.depth), options.keepHistory, options.KHSep)
+			# print(expansionCount)
+			expansionCount = 0
 			print(formatWord(word, opts))
+			# print(args[1]+printPath(word["path"]))
 		if options.HTMLmode:
 			print("</table>")
 	elif args[2] == "list":
 		for word in listAll(Data, args[1], opts):
 			print(word)
+	elif args[2] == "diag":
+		if options.dbgRE:
+			if "replace" in Data:
+				for channel in Data["replace"]:
+					print(channel+':')
+					for stage in Data["replace"][channel]:
+						print('  [')
+						for rule in stage:
+							print('    {'+"m: {m}, r: {r}".format(m=repr(filterRE(rule['m'])),r=repr(rule['r']))+'}')
+						print('  ]')
+		if options.dbgNodes:
+			G = SwitchingGraph(Data)
+			G.addNode(":arg", [{"val":args[1]}])
+			print(repr(G))
+			print(repr(G[":arg"]))
+		if options.dbgRETest:
+			for ch in options.channels:
+				pass
+		if options.dbgBNFExport:
+			print('-'*40)
+			print(toBNF(Data))
+			print('-'*40)
+		
 main()

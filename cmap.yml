@@ -1,0 +1,166 @@
+file:
+  - val: "{cmap}"
+    freq: d64
+  - val: "{cmap}{cmap}"
+    freq: d128
+  - val: "{cmap}{cmap}{cmap}"
+    freq: d64
+  - val: "{cmap}{cmap}{cmap}{cmap}"
+    freq: d32
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}"
+    freq: d16
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+    freq: d8
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+    freq: d4
+
+cmap:
+  - val: "{sep}{str}{sep}{clist}"
+
+clist:
+  - val: "256{space}{clist/256}"
+    freq: d.1
+  - val: "16{space}{clist/16}"
+  - val: "1{space}{clist/1}"
+  - val: "12{space}{clist/8}{clist/4}"
+  - val: "13{space}{clist/8}{clist/4}{clist/1}"
+
+str:
+  - val: "{char}"
+  - val: "{char}{char}"
+  - val: "{char}{char}{char}{char}"
+  - val: "{char}{str}"
+
+color:
+  - val: "{hex}{hex}{hex}{hex}{hex}{hex}"
+
+clist/256:
+  - val: "{clist/64}{clist/64}{clist/64}{clist/64}"
+clist/128:
+  - val: "{clist/32}{clist/32}{clist/32}{clist/32}"
+clist/64:
+  - val: "{clist/16}{clist/16}{clist/16}{clist/16}"
+clist/32:
+  - val: "{clist/8}{clist/8}{clist/8}{clist/8}"
+clist/16:
+  - val: "{clist/4}{clist/4}{clist/4}{clist/4}"
+clist/8:
+  - val: "{clist/2}{clist/2}{clist/2}{clist/2}"
+clist/4:
+  - val: "{clist/1}{clist/1}{clist/1}{clist/1}"
+clist/2:
+  - val: "{clist/1}{clist/1}"
+clist/1:
+  - val: "{color}{space:1 1}"
+
+sep:
+  - val: ":"
+hex:
+  - val: "0"
+  - val: "1"
+  - val: "2"
+  - val: "3"
+  - val: "4"
+  - val: "5"
+  - val: "6"
+  - val: "7"
+  - val: "8"
+  - val: "9"
+  - val: "a"
+  - val: "b"
+  - val: "c"
+  - val: "d"
+  - val: "e"
+  - val: "f"
+  - val: "A"
+  - val: "B"
+  - val: "C"
+  - val: "D"
+  - val: "E"
+  - val: "F"
+space:
+  - val: "{space}{space}"
+  # nothing
+  - freq: d0
+  - val: " "
+  - val: "\n"
+  - val: "\t"
+  - val: ","
+# NOT ":"
+char:
+  - val: "{hex}"
+    freq: d22
+  - val: "{space:0 0}"
+    freq: d4
+  - val: g
+  - val: h
+  - val: i
+  - val: j
+  - val: k
+  - val: l
+  - val: m
+  - val: n
+  - val: o
+  - val: p
+  - val: q
+  - val: r
+  - val: s
+  - val: t
+  - val: u
+  - val: v
+  - val: w
+  - val: x
+  - val: y
+  - val: z
+  - val: G
+  - val: H
+  - val: I
+  - val: J
+  - val: K
+  - val: L
+  - val: M
+  - val: N
+  - val: O
+  - val: P
+  - val: Q
+  - val: R
+  - val: S
+  - val: T
+  - val: U
+  - val: V
+  - val: W
+  - val: X
+  - val: Y
+  - val: Z
+  - val: "\""
+  - val: "'"
+  - val: "~"
+  - val: "!"
+  - val: "@"
+  - val: "#"
+  - val: "$"
+  - val: "%"
+  - val: "^"
+  - val: "&"
+  - val: "*"
+  - val: "("
+  - val: ")"
+  - val: "_"
+  - val: "+"
+  - val: "`"
+  - val: "-"
+  - val: "="
+  # See: Python format-string documentation
+  - val: "{{"
+  - val: "}}"
+  - val: "|"
+  - val: "["
+  - val: "]"
+  - val: "\\"
+  - val: ";"
+  - val: "<"
+  - val: ">"
+  - val: "?"
+  - val: "."
+  - val: "/"
+  

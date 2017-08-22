@@ -1,0 +1,142 @@
+channels:
+  val: "Reformed Orthography"
+
+  org: "Orginal Orthography"
+  ipa: "IPA"
+  newipa: "Reformed IPA"
+
+  path: "Path"
+  freq: "Frequency"
+
+replace:
+  val:
+    # Clean up generation artifacts
+    - - m: ';'
+        r: ""
+  org:
+    # Clean up generation artifacts
+    - - m: ';'
+        r: ""
+  ipa:
+    # - - m: 'fm'
+        # r: 'ɸm'
+      # - m: 'vm'
+        # r: 'βm'
+    # Clean up generation artifacts
+    - - m: '^;'
+        r: ""
+      - m: ';$'
+        r: ""
+    - - m: ';'
+        r: "."
+
+#---Separators ---#
+.:  [{val: ";", org: ";", ipa: ";", newipa: ";"}]
+
+#--- Words ---#
+Root:
+  - val: "{Root/CVs}{.}{Cons/Start}{Vowel/Root}{Cons/End}"
+Root/CVs:
+  - val: ""
+    freq: d2
+  - val: "{Cons/Start}{Vowel/Root}"
+    freq: d2
+  - val: "{Root/CVs}{.}{Cons/Start}{Vowel/Root}"
+Root/s:
+  - val: "{.}{Root}"
+    freq: 3
+  - val: "{Root/s}{.}{Root}"
+
+Suffix:
+  - val: "{Vowel/Suffix}"
+  - val: "{Vowel/Suffix}{Cons/End}"
+  - val: "{Cons/Suffix}{Vowel/Suffix}"
+  - val: "{Cons/Suffix}{Vowel/Suffix}{Cons/End}"
+Suffix/s:
+  - val: ""
+  - val: "{.}{Suffix}"
+    freq: 2
+  - val: "{Suffix/s}{.}{Suffix}"
+
+Word:
+  - val: "{Root}{Suffix/s}"
+
+#--- Phonology ---#
+# Vowels:
+Vowel/Root:
+  - {val: "a", org: "a", ipa: "æ", newipa: "æ", freq: d245}
+  - {val: "e", org: "e", ipa: "e", newipa: "e", freq: d211}
+  - {val: "i", org: "i", ipa: "i", newipa: "i", freq: d199}
+  - {val: "y", org: "y", ipa: "y", newipa: "y", freq: d131}
+  - {val: "ë", org: "el", ipa: "œ", newipa: "œ", freq: d73}
+  - {val: "ö", org: "ol", ipa: "ø", newipa: "ø", freq: d152}
+  - {val: "ü", org: "ul", ipa: "ʊ", newipa: "ʊ", freq: d78}
+  - {val: "û", org: "uh", ipa: "ʌ", newipa: "ʌ", freq: d85}
+Vowel/Suffix:
+  - {val: "o", org: "o", ipa: "o", newipa: "o", freq: d34}
+  - {val: "u", org: "u", ipa: "u", newipa: "u", freq: d38}
+  - {val: "â", org: "ah", ipa: "ɑ", newipa: "ɑ", freq: d21}
+  - {val: "ê", org: "eh", ipa: "ɛ", newipa: "ɛ", freq: d24}
+Cons/N:
+  - {val: "m", org: "m", ipa: "m", newipa: "m", freq: d234}
+  - {val: "n", org: "n", ipa: "n", newipa: "n", freq: d284}
+Cons/F:
+  - {val: "f", org: "f", ipa: "f", newipa: "f", freq: d52}
+  - {val: "v", org: "v", ipa: "v", newipa: "v", freq: d43}
+  - {val: "s", org: "s", ipa: "s", newipa: "s", freq: d69}
+  - {val: "z", org: "z", ipa: "z", newipa: "z", freq: d75}
+  - {val: "th", org: "th", ipa: "θ", newipa: "θ", freq: d50}
+  - {val: "š", org: "sh", ipa: "\u0283", newipa: "\u0283", freq: d30}
+  - {val: "ž", org: "zh", ipa: "\u0292", newipa: "\u0292", freq: d48}
+  - {val: "l", org: "sl", ipa: "\u026c", newipa: "\u026c", freq: d33}
+  - {val: "r", org: "zl", ipa: "\u026e", newipa: "\u026e", freq: d27}
+Cons/V:
+  - {val: "d", org: "d", ipa: "d", newipa: "d", freq: d96}
+  - {val: "g", org: "g", ipa: "\u0261", newipa: "\u0261", freq: d65}
+Cons/D:
+  - {val: "c", org: "c", ipa: "t\u0361s", newipa: "t\u0361s", freq: d143}
+  - {val: "t", org: "t", ipa: "t", newipa: "t", freq: d258}
+  - {val: "k", org: "k", ipa: "k", newipa: "k", freq: d214}
+Cons/O:
+  - {val: "x", org: "x", ipa: "x", newipa: "x", freq: d53}
+  - {val: "j", org: "j", ipa: "j", newipa: "j", freq: d71}
+Cons/Cluster:
+  - {val: "{Cons/F:1 0 0 0 0 0 0 0 0}{Cons/N:1 0}", freq: d15} #fm
+  - {val: "{Cons/F:1 0 0 0 0 0 0 0 0}{Cons/N:0 1}", freq: d13} #fn
+  - {val: "{Cons/F:0 1 0 0 0 0 0 0 0}{Cons/N:1 0}", freq: d20} #vm
+  - {val: "{Cons/F:0 1 0 0 0 0 0 0 0}{Cons/N:0 1}", freq: d9}  #vn
+  - {val: "{Cons/F:0 0 1 0 0 0 0 0 0}{Cons/N:0 1}", freq: d30} #sn
+  - {val: "{Cons/F:0 0 0 1 0 0 0 0 0}{Cons/N:0 1}", freq: d16} #zn
+  - {val: "{Cons/F:0 0 0 0 1 0 0 0 0}{Cons/N:0 1}", freq: d23} #thn
+  - {val: "{Cons/F:0 0 0 0 0 1 0 0 0}{Cons/N:0 1}", freq: d7}  #šn
+  - {val: "{Cons/F:0 0 0 0 0 0 1 0 0}{Cons/N:0 1}", freq: d6}  #žn
+  - {val: "{Cons/F:0 0 0 0 0 0 0 1 0}{Cons/N:0 1}", freq: d6}  #ln
+  - {val: "{Cons/F:0 0 0 0 0 0 0 0 1}{Cons/N:0 1}", freq: d11} #rn
+  - {val: "{Cons/F:0 0 0 0 1 0 0 0 0}{Cons/N:1 0}", freq: d1}  #thm
+  - {val: "{Cons/F:0 0 0 0 0 1 0 0 0}{Cons/N:1 0}", freq: d1}  #šm
+  - {val: "{Cons/F:0 0 0 0 0 0 1 0 0}{Cons/N:1 0}", freq: d1}  #žm
+  - {val: "{Cons/F:0 0 0 0 0 0 0 1 0}{Cons/N:1 0}", freq: d.1}  #lm
+  - {val: "{Cons/F:0 0 0 0 0 0 0 0 1}{Cons/N:1 0}", freq: d.1}  #rm
+  
+  - {val: "{Cons/O:1 0}{Cons/N:1 0}", freq: d.01} #xn
+  - {val: "{Cons/O:1 0}{Cons/N:0 1}", freq: d.01} #xm
+Cons/Start:
+  - val: "{Cons/N}"
+    freq: d518
+  - val: "{Cons/F}"
+    freq: d427
+  - val: "{Cons/V}"
+    freq: d161
+  - val: "{Cons/D}"
+    freq: d615
+  - val: "{Cons/O}"
+    freq: d124
+  - val: "{Cons/Cluster}"
+    freq: d110
+Cons/Suffix:
+  - val: "{Cons/Start:518 427 161 615 124 0}"
+Cons/End:
+  - val: "{Cons/N}"
+    freq: d518
+  - val: "{Cons/D}"
+    freq: d615
