@@ -1,0 +1,44 @@
+replace:
+  val:
+    - - m: 'ss'
+        r: 'z'
+      - m: 'xx'
+        r: 'j'
+
+Word:
+  - val: "{Syllable:3 1 0}{Syllable:1 0 1}"
+    freq: 4
+  - val: "{Syllable:3 1 0}{Word2}"
+  - val: "{Syllable:1 0 1}"
+    freq: d.5
+Word2:
+  - val: "{Syllable}{Syllable:1 0 1}"
+  - val: "{Syllable}{Word2}"
+    freq: d.5
+  - val: "{Syllable:1 0 1}"
+
+Syllable:
+  - val: "{Consonant}{Vowel}"
+  #only at beginning of word
+  - val: "{Vowel}"
+    freq: 0
+  #only at end of word
+  - val: "{Consonant}{Vowel}{Consonant}"
+    freq: 0
+
+Vowel:
+  - val: u
+  - val: i
+  - val: a
+
+Consonant:
+  - val: p
+  - val: b
+  - val: k
+  - val: g
+  - val: f
+  - val: v
+  - val: t
+  - val: d
+  - val: s
+  - val: x
