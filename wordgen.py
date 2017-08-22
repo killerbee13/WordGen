@@ -14,7 +14,7 @@ import pdb
 from collections import deque
 from string import *
 
-sep = re.compile('[^0-9.]+')
+sep = re.compile('[^0-9.]*[^0-9.+*=]')
 expansionCount = 0
 
 class Path:
@@ -238,6 +238,9 @@ def chooseFrom(Data, list, depth=-16, maxDepth=16):
 	other_channels = list[stop].copy()
 	for _ in set(["val","freq","path"]):
 		other_channels.pop(_,"")
+	if "path" in list[stop]:
+		pass
+		# print("wordgen.py: warning: ignored reserved channel 'path'", file=sys.stderr)
 	if expansionCount >= maxDepth**2:
 		#Expansion limit reached
 		print("wordgen.py: expansion limit reached", file=sys.stderr)
@@ -270,12 +273,22 @@ def chooseFrom(Data, list, depth=-16, maxDepth=16):
 						if _:
 							_ = _.end()
 						flist = re.split(sep,s[2][_:])
-						nstr = s[1]
+						# nstr = s[1]
+						mode = "assign"
 						for i in range(min(len(flist),len(node))):
+							if flist[i][0] == "*":
+								mode = "multiply"
+								flist[i] = flist[i][1:]
+							elif flist[i][0] == "+":
+								mode = "add"
+								flist[i] = flist[i][1:]
+							elif flist[i][0] == "=":
+								mode = "assign"
+								flist[i] = flist[i][1:]
 							d = decimal.Decimal(flist[i])
 							node[i]['freq'] = d
-							nstr += ','+str(d)
-						Data[nstr] = node
+							# nstr += ','+str(d)
+						# Data[nstr] = node
 					# Throws a KeyError on invalid reference. Not caught because
 						# the Python default error message is good enough and there's
 						# nothing for the code to do with an error.
@@ -309,7 +322,7 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 	def doStagedMatchReplace(regexes, word):
 		ret = [word]
 		for stage in regexes:
-			if "S" in stage:
+			if isinstance(stage, dict) and "S" in stage:
 				# pdb.set_trace()
 				state = "S"
 				cline = ""
@@ -337,9 +350,10 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				if "reversed" in stage and stage["reversed"]&2:
 					cline = cline[::-1]
 				ret.append(cline)
-			else:
+			elif isinstance(stage, list) and len(stage) > 0 and "m" in stage[0]:
 				for rule in stage:
 					if "c" in rule:
+						# not continue because rules are never added
 						break
 					rule["c"] = re.compile(filterRE(rule["m"]))
 				cline = ret[-1]
@@ -352,11 +366,15 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 					# for rule in stage:
 						# cline = rule["c"].sub(rule["r"], cline)
 				# ret.append(cline[:cline.rfind(endToken)])
+			else:
+				print("replace stage invalid: {0!r}".format(stage), file=sys.stderr)
 		return ret
 	ret = {}
 	# for channel in word:
 		# ret[channel] = [word[channel]]
 	if "replace" in Data:
+		assert "path" not in Data["replace"], \
+			"path is not a valid channel for replacement rules"
 		for channel in Data["replace"]:
 			if channel in word:
 				ret[channel] = [word[channel]]+doStagedMatchReplace(Data["replace"][channel], word[channel])
@@ -768,7 +786,7 @@ def main():
 	
 	debugGroup.add_option("-P", "--path", dest="channels",
 			action="append_const", const="path",
-			help="print paths for generated words")
+			help="print paths for generated words (-c path)")
 	debugGroup.add_option("-K", "--keepHistory", dest="keepHistory",
 			action="store_true", default=False,
 			help="save every step of regex application\n"
