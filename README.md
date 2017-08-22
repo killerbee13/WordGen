@@ -58,40 +58,40 @@ The algorithm is then called on the named root switching-node *n* times with a m
 
 Abstractly:
 
-1. Increment the expansion count (which begins at 0 and is global). If we have exceeded the maximum expansion count, or the maximum depth, then abort with an error, returning the literal, unexpanded text of `val` and all other channels to the caller.
-2. First, all frequencies of the current node's alternatives are summed, then a random (decimal floating point) number between 0 and that maximum is generated. Each alternative's frequency is subtracted from that generated number in turn until it is <= 0, at which point the alternative has been selected. (Or, in other words: concatenate all of the `freq` values as ranges on the number line and select a random point within the total range, then select the alternative corresponding to the subrange including the selected point.)
-3. If `val` is empty, simply return the other channels literally
-4. Otherwise, parse `val` into a list of pairs of literal-strings and references. For each element:
-  1. If it has a reference:
-    1. If it has an flist, extract the flist, then create a copy of the referenced node and overwrite its `freq` values with the extracted flist [Note: This part of the algorithm is currently being updated to support other behavior than simply overwriting the `freq` values, but as of now that is unimplemented]
-    2. Recurse on the referenced node, passing an incremented copy of depth
-    3. For each channel:
-      1. Append the literal-string in that channel in the current alternative and the returned value from the recursive call to the output [Note that the format-string parser parses a string into pairs of literals and references, which does slightly convolute this section]
-  2. Otherwise, it is only a literal-string:
-    1. For each channel: append the literal-string in that channel to the output
-5. return the output
-6. [After the root node has been fully expanded:]
-7. if `replace` is in the grammar:
-  1. For each channel in the output:
-    1. For each stage in `replace`:
-      1. if the stage is an FSM:
-        1. start at state S
-        2. If `stage["reversed"]&1`: reverse the input
-        3. For each character `c` in the input:
-          1. If a rule matching `c` is in the current state (including `default`):
-            1. Append the string in that rule to the output
-            2.If that rule names a state: transition to that state
-          2. Otherwise:
-            1. Append `c` to the output
-            2. if `return` is specified: Transition to that state
-        4. If `end` is specified: append that string to the output
-        5. If `stage["reversed"]&2`: Reverse the output
-      2. Otherwise, if the stage is a list of regexes:
-        1. For each regex:
-          1. Globally substitute that regex in the input with the provided string
-8. Otherwise: [Deprecated]
-  1. If `replacement` is in the grammar:
-    1. Do 7.1.1 for channel `val` w.r.t. `replacement`
-  2. If `replaceIPA` is in the grammar:
-    1. Do 7.1.1 for channel `ipa` w.r.t. `replaceIPA`
+ 1. Increment the expansion count (which begins at 0 and is global). If we have exceeded the maximum expansion count, or the maximum depth, then abort with an error, returning the literal, unexpanded text of `val` and all other channels to the caller.
+ 2. First, all frequencies of the current node's alternatives are summed, then a random (decimal floating point) number between 0 and that maximum is generated. Each alternative's frequency is subtracted from that generated number in turn until it is <= 0, at which point the alternative has been selected. (Or, in other words: concatenate all of the `freq` values as ranges on the number line and select a random point within the total range, then select the alternative corresponding to the subrange including the selected point.)
+ 3. If `val` is empty, simply return the other channels literally
+ 4. Otherwise, parse `val` into a list of pairs of literal-strings and references. For each element:
+    1. If it has a reference:
+       1. If it has an flist, extract the flist, then create a copy of the referenced node and overwrite its `freq` values with the extracted flist [Note: This part of the algorithm is currently being updated to support other behavior than simply overwriting the `freq` values, but as of now that is unimplemented]
+       2. Recurse on the referenced node, passing an incremented copy of depth
+       3. For each channel:
+          1. Append the literal-string in that channel in the current alternative and the returned value from the recursive call to the output [Note that the format-string parser parses a string into pairs of literals and references, which does slightly convolute this section]
+    2. Otherwise, it is only a literal-string:
+       1. For each channel: append the literal-string in that channel to the output
+ 5. return the output
+ 6. [After the root node has been fully expanded:]
+ 7. if `replace` is in the grammar:
+    1. For each channel in the output:
+       1. For each stage in `replace`:
+          1. if the stage is an FSM:
+             1. start at state S
+             2. If `stage["reversed"]&1`: reverse the input
+             3. For each character `c` in the input:
+                1. If a rule matching `c` is in the current state (including `default`):
+                   1. Append the string in that rule to the output
+                   2.If that rule names a state: transition to that state
+                2. Otherwise:
+                   1. Append `c` to the output
+                   2. if `return` is specified: Transition to that state
+             4. If `end` is specified: append that string to the output
+             5. If `stage["reversed"]&2`: Reverse the output
+          2. Otherwise, if the stage is a list of regexes:
+             1. For each regex:
+                1. Globally substitute that regex in the input with the provided string
+ 8. Otherwise: [Deprecated]
+    1. If `replacement` is in the grammar:
+       1. Do 7.1.1 for channel `val` w.r.t. `replacement`
+    2. If `replaceIPA` is in the grammar:
+       1. Do 7.1.1 for channel `ipa` w.r.t. `replaceIPA`
 
