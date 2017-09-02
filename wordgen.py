@@ -8,6 +8,7 @@ import gmpy2
 import optparse
 import copy
 import collections
+import html
 
 import pdb
 
@@ -15,7 +16,9 @@ from collections import deque
 from string import *
 
 sep = re.compile('[^0-9.]*[^0-9.+*=]')
+aChar = re.compile('(.)')
 expansionCount = 0
+one = decimal.Decimal('1')
 
 class Path:
 	"""A path to a word."""
@@ -218,12 +221,17 @@ def chooseFrom(Data, list, depth=-16, maxDepth=16):
 	"""Select a random value from the list, recursing on references"""
 	# list = [{"val": x.get("val",""), "ipa": x.get("ipa",""), "freq":decimal.Decimal(x.get("freq",decimal.Decimal('1')))} for x in list]
 	global expansionCount
+	if (isinstance(list, dict)):
+		list["val"] = list.get("val","")
+		list["freq"] = one
+		list["path"] = None
+		return list
 	expansionCount += 1
 	for x in list:
 		x["val"] = x.get("val","")
-		x["freq"] = decimal.Decimal(x.get("freq",decimal.Decimal('1')))
-		for ch in Data["channels"]:
-			x[ch] = x.get(ch,"")
+		x["freq"] = decimal.Decimal(x.get("freq",one))
+		# for ch in Data["channels"]:
+			# x[ch] = x.get(ch,"")
 	listSum = sum([x["freq"] for x in list])
 	a = decimal.Decimal(random.uniform(0,float(listSum)))
 	stop = 0
@@ -244,20 +252,20 @@ def chooseFrom(Data, list, depth=-16, maxDepth=16):
 	if expansionCount >= maxDepth**2:
 		#Expansion limit reached
 		print("wordgen.py: expansion limit reached", file=sys.stderr)
-		rets = {"val": list[stop]["val"], "path": [stop], "freq":list[stop]["freq"]/listSum}
+		rets = {"val": list[stop]["val"], "path": [0], "freq":list[stop]["freq"]/listSum}
 		for ch in other_channels:
 			rets[ch] = list[stop].get(ch,"")
 		return rets
 	elif depth >= 0:
 		#Recursion limit reached
 		print("wordgen.py: recursion limit reached", file=sys.stderr)
-		rets = {"val": list[stop]["val"], "path": [stop], "freq":list[stop]["freq"]/listSum}
+		rets = {"val": list[stop]["val"], "path": [0], "freq":list[stop]["freq"]/listSum}
 		for ch in other_channels:
 			rets[ch] = list[stop].get(ch,"")
 		return rets
 	else:
 		rets = {"val": "", "freq": decimal.Decimal(1)/listSum, "path": [stop]}
-		#If val is empty, insert channels and bail
+		#If val is empty, simply return the other channels
 		if not list[stop]["val"]:
 			for ch in other_channels:
 				rets[ch] = list[stop].get(ch,"")
@@ -320,6 +328,14 @@ def filterRE(RE):
 def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 	"""Applies regular expressions in Data to word."""
 	def doStagedMatchReplace(regexes, word):
+		def defaultPlaceholder(str, c):
+			# return aChar.sub(str, c)
+			out = ""
+			for t in Formatter().parse(str):
+				out += t[0]
+				if t[1] is not None:
+					out += c
+			return out
 		ret = [word]
 		for stage in regexes:
 			if isinstance(stage, dict) and "S" in stage:
@@ -330,19 +346,29 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				if "reversed" in stage and stage["reversed"]&1:
 					ret[-1] = ret[-1][::-1]
 				for c in ret[-1]:
-					if c in stage[state]:
-						cline += stage[state][c][0]
-						if len(stage[state][c])>1:
-							state = stage[state][c][1]
+					s = stage[state]
+					if c in s or "default" in s:
+						r = s.get(c,s.get("default"))
+						cline += defaultPlaceholder(r[0], c)
+						if len(r)>1:
+							state = r[1]
 					else:
-						if "default" in stage[state]:
-							cline += stage[state]["default"][0]
-							if len(stage[state]["default"])>1:
-								state = stage[state]["default"][1]
-						else:
-							cline += c
-							if "return" in stage[state]:
-								state = stage[state]["return"]
+						cline += c
+						if "return" in s:
+							state = s["return"]
+					# if c in stage[state]:
+						# cline += stage[state][c][0]
+						# if len(stage[state][c])>1:
+							# state = stage[state][c][1]
+					# else:
+						# if "default" in stage[state]:
+							# cline += defaultPlaceholder(stage[state]["default"][0], c)
+							# if len(stage[state]["default"])>1:
+								# state = stage[state]["default"][1]
+						# else:
+							# cline += c
+							# if "return" in stage[state]:
+								# state = stage[state]["return"]
 				if "end" in stage[state]:
 					cline += stage[state]["end"]
 				if "reversed" in stage and stage["reversed"]&1:
@@ -360,12 +386,6 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				for rule in stage:
 					cline = rule["c"].sub(rule["r"], cline)
 				ret.append(cline)
-				# cline = ''
-				# for c in (ret[-1]+endToken):
-					# cline += c
-					# for rule in stage:
-						# cline = rule["c"].sub(rule["r"], cline)
-				# ret.append(cline[:cline.rfind(endToken)])
 			else:
 				print("replace stage invalid: {0!r}".format(stage), file=sys.stderr)
 		return ret
@@ -571,47 +591,22 @@ def formatWord(word, opts, formatStr=None):
 				if ch == "path":
 					word[ch] = printPath(word.get(ch,""))
 				else:
-					word[ch] = word.get(ch,"")
+					word[ch] = html.escape(word.get(ch,""))
 			fstr += "</tr>"
 		word["val"] = word.get("val","")
 		return formatWord(word,opts,fstr)
-		
-		# opts = { "ipa":  opts.get("ipa",  False),
-					# "path": opts.get("path", False),
-					# "HTML": opts.get("HTML", False),
-					# "freq": opts.get("freq", False),
-				# }
-		# return formatWord(word, opts, 
-		# [	"{val}",																	# -
-			# "{val}: \t{ipa}",														# -p
-			# "{val} \t{path}",														# -P
-			# "{val}: \t{ipa} \t{path}",											# -pP
-			# "<tr><td>{val}</td></tr>",											# -H
-			# "<tr><td>{val}</td><td>{ipa}</td></tr>",						# -pH
-			# "<tr><td>{val}</td><td>{path}</td></tr>",						# -PH
-			# "<tr><td>{val}</td><td>{ipa}</td><td>{path}</td></tr>",	# -pPH
-			# "{val} \t{freq}",														# -f
-			# "{val}: \t{ipa} \t{freq}",											# -pf
-			# "{val} \t{path} \t{freq}",											# -Pf
-			# "{val}: \t{ipa} \t{path} \t{freq}",								# -pPf
-			# "<tr><td>{val}</td><td>{freq}</td></tr>",						# -Hf
-			# "<tr><td>{val}</td><td>{ipa}</td><td>{freq}</td></tr>",	# -pHf
-			# "<tr><td>{val}</td><td>{path}</td><td>{freq}</td></tr>",	# -PHf
-																						# # -pPHf
-			# "<tr><td>{val}</td><td>{ipa}</td><td>{path}</td><td>{freq}</td></tr>",
-		# ][int(opts.get("ipa",False))
-			# +int(opts.get("path",False))*2
-			# +int(opts.get("HTML",False))*4
-			# +int(opts.get("freq",False))*8
-		# ])
 
 def printPath(path):
 	def recurse(path):
 		ret = gmpy2.mpz(path[0]).digits(62)
 		for a in path[1:]:
-			ret = ret + '[' + (recurse(a)) + ']'
+			if a:
+				ret = ret + '[' + (recurse(a)) + ']'
 		return ret
-	return '+' + recurse(path)
+	if path:
+		return '+' + recurse(path)
+	else:
+		return '+0'
 
 def readPath(pathStr):
 	# Simple token separator function - recognizes + [ ] and alphanumerics
@@ -698,38 +693,21 @@ def toBNF(Data, StartDef):
 		nodes.pop(N)
 	
 
-#if 2 < len(sys.argv) < 7:
-	#sys.argv.extend([0]*(7-len(sys.argv)))
-
-# #Print $3 descendants of $2 to depth $6 from datafile $1 with mode flags $4 and $5
-# printWords(makeWords(yaml.safe_load(open(sys.argv[1],'r', encoding="utf8")), int(sys.argv[3]), sys.argv[2], int(sys.argv[6])), int(sys.argv[4]), int(sys.argv[5]))
-# #if not int(sys.argv[3]):
-	# #print(yaml.dump(listAllR(yaml.safe_load(open(sys.argv[1],'r', encoding="utf8")), sys.argv[2], int(sys.argv[6]), True, [])))
-	# print(listAll(yaml.safe_load(open(sys.argv[1],'r', encoding="utf8")), sys.argv[2], int(sys.argv[6])))
-
 def main():
 	global expansionCount
-	# class Dec(decimal.Decimal, yaml.YAMLObject):
-		# yaml_loader = yaml.SafeLoader
-		# yaml_dumper = yaml.SafeDumper
-		# yaml_tag = u'!d'
-		# def __init__(self, data):
-			# Decimal(self, value=data[1:])
-		# def __repr__(self):
-			# return "d"+super().__repr__()
+	# Enable shorthand for decimal numbers:
 	def dec_repr(dumper, data):
 		return dumper.represent_scalar(u'!d', 'd'+str(data))
 	yaml.Dumper.add_representer(decimal.Decimal, dec_repr)
 	yaml.SafeDumper.add_representer(decimal.Decimal, dec_repr)
-	# yaml.Loader.add_implicit_resolver(u'!d', re.compile(r'd\d+'), ['d'])
 	yaml.Loader.add_implicit_resolver(u'!d', re.compile(r'd\d*\.?\d+'), ['d'])
-	# yaml.SafeLoader.add_implicit_resolver(u'!d', re.compile(r'd\d+'), ['d'])
 	yaml.SafeLoader.add_implicit_resolver(u'!d', re.compile(r'd\d*\.?\d+'), ['d'])
 	def dec_cons(loader, node):
 		return decimal.Decimal(loader.construct_scalar(node)[1:])
 	yaml.Loader.add_constructor(u'!d', dec_cons)
 	yaml.SafeLoader.add_constructor(u'!d', dec_cons)
 	
+	# Command-line options
 	parser = optparse.OptionParser(
 			usage="usage: %prog [options] <datafile> <root> [command]\n"
 			"  [command] may be either 'gen' [default], 'list', or 'diag'")
@@ -832,7 +810,6 @@ def main():
 	}
 	random.seed(options.seed)
 	Data = yaml.safe_load(open(args[0],'r', encoding="utf8"))
-	# Data = 
 	if args[2] == "gen":
 		if False: # Debug stuff
 			try:
@@ -858,26 +835,26 @@ def main():
 			except Exception as e:
 				print(e)
 		Header = ""
-		if "channels" not in Data:
-			Data["channels"] = {"val":"Words","ipa":"IPA","path":"Path"}
+		# Default some channel names for printing
+		channels = {"val":"Words","ipa":"IPA","path":"Path"}
+		if "channels" in Data:
+			for ch, name in Data["channels"].items():
+				channels[ch] = name
 		if options.HTMLmode:
 			Header = "<table><tr>"
 			for ch in options.channels:
-				Header += "<th>"+Data["channels"].get(ch,"")+"</th>"
+				Header += "<th>"+html.escape(channels.get(ch,ch))+"</th>"
 			Header += "</tr>"
 			print(Header)
 		else:
 			if not options.quiet:
-				for ch in options.channels:
-					Header += Data["channels"].get(ch,"")+'\t'
+				Header += '\t'.join([channels.get(ch,ch) for ch in options.channels])
 				print(Header)
 				print('-'*40)
 		for i in range(options.num):
 			word = applyRE(Data, chooseFrom(Data, Data[args[1]], -1*options.depth, options.depth), options.keepHistory, options.KHSep)
-			# print(expansionCount)
 			expansionCount = 0
 			print(formatWord(word, opts))
-			# print(args[1]+printPath(word["path"]))
 		if options.HTMLmode:
 			print("</table>")
 	elif args[2] == "list":

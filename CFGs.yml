@@ -1,0 +1,16 @@
+replace:
+  val:
+    - - m: "{[^}]*}"
+        r: ""
+
+Dyck:
+  - val: "{Dyck:.8 1 1.2}{Dyck:.8 1 1.2}"
+  - val: "[{Dyck:1 .8 1.1}]"
+  - val: ""
+    freq: d.1
+
+binPalindrome:
+  - val: ""
+    freq: d.1
+  - val: "1{binPalindrome}1"
+  - val: "0{binPalindrome}0"

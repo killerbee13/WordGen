@@ -1,3 +1,11 @@
+channels:
+  p: "Pathsim"
+
+replace:
+  val:
+    - S:
+        default: ["{}{}"]
+# Simple infinite recursion
 A:
   - val: "{A} {A}"
 
@@ -44,11 +52,39 @@ y:
   - val: e
     ipa: e
 
+# "Wide" expansion demonstration (limited to depth**2 expansions)
 W:
   - val: "{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}{W}"
-    freq: 1
 
+# This node produces its own path
+P:
+  - val: "+0"
+    p: "+0"
+    freq: d.1
+  - val: "+1{R:.5}"
+    p: "+1"
+  - val: "+2{R:.5}{R:.75}"
+    p: "+2"
 R:
-  - val: "[0]"
-  - val: "[1{R}]"
-  - val: "[2{R}{R}]"
+  - p: "[0]"
+  - val: "{R:1.1}{R/]}"
+    p: "[1"
+  - val: "{R:1.2}{R:1.2}{R/]}"
+    p: "[2"
+R/]:
+  p: "]"
+
+P1:
+  - val: "{P1:1 0}{R/]}"
+    p: '[0'
+    freq: d0
+  - val: "{P1/+}{P1:1 0}{R/]}{endl}"
+P1/+:
+  p: "+1"
+endl:
+  p: "\n"
+
+# Demonstrates that in HTML mode the output is escaped
+html:
+  - val: "</td>"
+
