@@ -1,5 +1,4 @@
 ﻿import sys
-import yaml
 import random
 import time
 import re
@@ -10,15 +9,16 @@ import copy
 import collections
 import html
 
-import pdb
+# import pdb
 
-from collections import deque
-from string import *
+from string import Formatter
+import yaml
 
 sep = re.compile('[^0-9.]*[^0-9.+*=]')
 aChar = re.compile('(.)')
 expansionCount = 0
 one = decimal.Decimal('1')
+
 
 class Path:
 	"""A path to a word."""
@@ -27,68 +27,72 @@ class Path:
 			self._depth = depth
 		# Attempt to increment rightmost-deepest, check for successors
 		q = self.asList()
-		# (self._branch,len(self._data[self._root]))
-		for n,d in reversed(q):
+		for n, d in reversed(q):
 			if len(n._data[n._root]) > 1:
 				j = n._branch + 1
 				if j == len(n._data[n._root]):
 					continue
-				while not n._data[n._root][j].get("freq",decimal.Decimal("1")):
+				while not n._data[n._root][j].get("freq", one):
 					j = n + 1
 					if j == len(n._data[n._root]):
 						continue
 				t = n._data[n._root][j]
-				if t.get("freq",decimal.Decimal("1")):
-					L = [{"freq":0}] * n._branch
+				if t.get("freq", one):
+					L = [{"freq": 0}] * n._branch
 					L.append(t)
-					tmp = chooseFrom(n._data, L, self._depth-d+1)
+					tmp = chooseFrom(n._data, L, self._depth-d + 1)
 					print(formatWord(applyRE(n._data, tmp), {
-						"ipa":True,
+						"ipa": True,
 					}))
 					n.__init__(n._data, n._root, tmp["path"])
 					return self
 		raise StopIteration
+
 	def asList(self):
 		"""Generates a heap-like (effectively). Used for breadth-first traversal"""
-		q = list([(self,0)])
+		q = list([(self, 0)])
 		i = 0
 		while i < len(q):
 			# print(q[i])
-			n,d = q[i]
-			q.extend([(c,d-1) for c in n._children])
+			n, d = q[i]
+			q.extend([(c, d-1) for c in n._children])
 			i = i + 1
 		return q
+
 	def iter(self):
 		return self
+
 	def getWord(self):
 		"""return word corresponding to self suitably for formatWord()"""
-		# print('get:  '+self._root)
-		# seed = self._data.SwitchingNode.Branch.extract(seed)
 		Node = self._data[self._root][self._branch]
-		sumFreq = sum([decimal.Decimal(decimal.Decimal(x.get("freq",decimal.Decimal('1')))) for x in self._data[self._root]])
-		SNode = {"val": Node.get("val",""), "ipa": Node.get("ipa",""), "freq":(decimal.Decimal(Node.get("freq",decimal.Decimal('1')))/sumFreq)}
-		rets = {"val":"", "ipa":"", "freq":decimal.Decimal('1')}
-		# print(self._root+'['+str(self._branch)+'] SNode'+str(SNode))
-		for i,s in enumerate(Formatter().parse(SNode["val"])):
-			#Reference
+		sumFreq = sum([
+			decimal.Decimal(x.get("freq", one)) for x in self._data[self._root]
+		])
+		SNode = {
+			"val": Node.get("val", ""),
+			"ipa": Node.get("ipa", ""),
+			"freq": (decimal.Decimal(Node.get("freq", one))/sumFreq)
+		}
+		rets = {"val": "", "ipa": "", "freq": one}
+		for i, s in enumerate(Formatter().parse(SNode["val"])):
+			# Reference
 			if s[1]:
-				#Generate subword from subpath
-				# print('s'+str(s))
-				# print(i)
+				# Generate subword from subpath
 				tmp = Path(self._data, s[1], self._children[i]).getWord()
-				
+
 				rets["val"] = rets["val"] + s[0] + tmp["val"]
 				rets["freq"] = rets["freq"]*tmp["freq"]
 				if s[0]:
-					#If reference+literal text, insert 
+					# If reference+literal text, insert
 					rets["ipa"] = rets["ipa"] + SNode["ipa"] + tmp["ipa"]
 				else:
 					rets["ipa"] = rets["ipa"] + tmp["ipa"]
-			#No reference, only literal text
+			# No reference, only literal text
 			else:
 				rets["val"] = rets["val"] + s[0]
 				rets["ipa"] = rets["ipa"] + SNode["ipa"]
 		return rets
+
 	def _str(self):
 		"""print Path as string"""
 		def recurse(self):
@@ -97,38 +101,39 @@ class Path:
 				ret = ret + '[' + (recurse(a)) + ']'
 			return ret
 		return '+' + recurse(self)
-		#return root + '+' + recurse(self)
+
 	def _list(self):
 		"""Create nested-list from Path"""
 		l = [self._branch]
 		l.extend([c._list() for c in self._children])
 		return l
+
 	def __init__(self, Data, root, path):
 		"""build Path from string or list"""
 		self._data = Data
 		self._root = root
 		self._depth = -16
-		# print('root: '+self._root)
 		if isinstance(path, list):
 			self._branch = path[0]
 			self._children = []
 			# Extract root for each child Path
-			#for c in path[1:]:
-			for i,tnode in enumerate(Formatter().parse(Data[root][self._branch].get("val",""))):
-				# print('tnode'+str(tnode))
+			for i, tnode in enumerate(Formatter().parse(
+				Data[root][self._branch].get("val", "")
+			)):
 				if tnode[1]:
 					self._children.append(Path(Data, tnode[1], path[i+1]))
-			
+
 		elif isinstance(path, str):
 			path = readPath(path)
 			self._branch = path[0]
 			self._children = []
 			# Extract root for each child Path
-			#for c in path[1:]:
-			for i,tnode in enumerate(Formatter().parse(Data[root][self._branch].get("val",""))):
+			for i, tnode in enumerate(Formatter().parse(
+				Data[root][self._branch].get("val", "")
+			)):
 				if tnode[1]:
 					self._children.append(Path(Data, tnode[1], path[i+1]))
-			
+
 		elif isinstance(path, Path):
 			if self._root != path._root:
 				raise ValueError
@@ -137,7 +142,7 @@ class Path:
 		else:
 			self._branch = 0
 			self._children = []
-		# print('Init: '+root+'['+str(self._branch)+'] '+str([c._str() for c in self._children]))
+
 
 class SwitchingGraph(collections.UserDict):
 	class SwitchingNode(collections.UserList):
@@ -148,9 +153,12 @@ class SwitchingGraph(collections.UserDict):
 						return "n'"+self.data+':'+','.join(self.flist)+"'"
 					else:
 						return "n'"+self.data+"'"
+
 				def __init__(self, s, l):
-					self.data = s
 					self.flist = l
+					# self.data = s
+					super().__init__(s)
+
 			def extract(self, val):
 				ret = []
 				for s in Formatter().parse(val):
@@ -161,53 +169,69 @@ class SwitchingGraph(collections.UserDict):
 						flist = []
 						if s[2]:
 							# Trim leading garbage
-							_ = re.match(sep,s[2])
+							_ = re.match(sep, s[2])
 							if _:
 								_ = _.end()
 							# Parse list
-							_ = re.split(sep,s[2][_:])
+							_ = re.split(sep, s[2][_:])
 							flist = [str(decimal.Decimal(i)) for i in _]
 						ret.append(self.NodeRef(nstr, flist))
 				return ret
+
 			def __init__(self, branch):
 				# print(repr(branch))
 				# print(repr(branch.get("val","")))
 				# self.val = self.extract(branch.get("val",""))
-				self.data = branch.copy()
-				if isinstance(branch.get("val",""),str):
-					self.data["val"] = self.extract(branch.get("val",""))
+				# self.data = branch.copy()
+				super().__init__(branch.copy())
+				if isinstance(branch.get("val", ""), str):
+					self.data["val"] = self.extract(branch.get("val", ""))
 				if "freq" not in branch:
-					self["freq"] = decimal.Decimal(1)
+					self["freq"] = one
+
 			def _dump(self):
-				return "{\t"+",\n\t".join([",\n\t".join(C+":"+self.data[C]) for C in self._branch])+"\t}"
+				return "{\t"+",\n\t".join(
+					[",\n\t".join(C+":"+self.data[C]) for C in self.data]
+				)+"\t}"
+
 		def __init__(self, branches):
-			self.data = [self.Branch(B) for B in branches]
+			super().__init__([self.Branch(B) for B in branches])
+
 		def _dump(self):
 			# return repr(self.data)
 			return [B._dump() for B in self.data]
+
 	def __init__(self, data):
 		# self.data = {N: self.SwitchingNode(data[N]) for N in data}
-		self.data = dict()
+		# self.data = dict()
+		super().__init__()
 		for N in data:
 			if N in set(["replace", "replaceIPA", "replacement", "channels"]):
 				continue
 			self.data[N] = self.SwitchingNode(data[N])
 		self.regexes = RegexApplicator(data)
+
 	def __getitem__(self, key):
 		if isinstance(key, self.SwitchingNode.Branch.NodeRef) and key.flist:
 			node = self.data[key].copy()
-			for i in range(min(len(key.flist),len(node))):
+			for i in range(min(len(key.flist), len(node))):
 				d = decimal.Decimal(key.flist[i])
 				node[i]['freq'] = d
 			return node
 		else:
 			return self.data[key]
+
 	def _dump(self):
-		return "\n".join([N+":\n\t"+'\n\t'.join(self.data[N]._dump()) for N in self._nodes])
+		return "\n".join([
+			N+":\n\t"+'\n\t'.join(self.data[N]._dump()) for N in self.data
+		])
+
 	def toYAML(self):
 		pass
+
 	def addNode(self, name, branches):
 		self.data[name] = self.SwitchingNode(branches)
+
 
 class RegexApplicator:
 	"""This class is NYI"""
@@ -217,73 +241,89 @@ class RegexApplicator:
 			if N in data:
 				self.data[N] = data[N]
 
-def chooseFrom(Data, list, depth=-16, maxDepth=16):
-	"""Select a random value from the list, recursing on references"""
-	# list = [{"val": x.get("val",""), "ipa": x.get("ipa",""), "freq":decimal.Decimal(x.get("freq",decimal.Decimal('1')))} for x in list]
+
+def chooseFrom(Data, branches, depth=-16, maxDepth=16):
+	"""Select a random value from the branches, recursing
+		on references
+	"""
 	global expansionCount
-	if (isinstance(list, dict)):
-		list["val"] = list.get("val","")
-		list["freq"] = one
-		list["path"] = None
-		return list
+	specialChannels = set(["val", "freq", "path"])
+
+	if isinstance(branches, dict):
+		branches["val"] = branches.get("val", "")
+		branches["freq"] = one
+		branches["path"] = None
+		return branches
 	expansionCount += 1
-	for x in list:
-		x["val"] = x.get("val","")
-		x["freq"] = decimal.Decimal(x.get("freq",one))
-		# for ch in Data["channels"]:
-			# x[ch] = x.get(ch,"")
-	listSum = sum([x["freq"] for x in list])
-	a = decimal.Decimal(random.uniform(0,float(listSum)))
+	for x in branches:
+		x["val"] = x.get("val", "")
+		x["freq"] = decimal.Decimal(x.get("freq", one))
+		# Ensure that every channel named exists
+		for ch in Data["channels"]:
+			x[ch] = x.get(ch, "")
+	branchesSum = sum([x["freq"] for x in branches])
+	a = decimal.Decimal(random.uniform(0, float(branchesSum)))
 	stop = 0
 	# This needs no normalization because values are never directly compared.
-	for i,c in enumerate([x["freq"] for x in list]):
+	for i, c in enumerate([x["freq"] for x in branches]):
 		a -= c
 		if a <= 0:
 			stop = i
-			break;
-	
-	Rets = []
-	other_channels = list[stop].copy()
-	for _ in set(["val","freq","path"]):
-		other_channels.pop(_,"")
-	if "path" in list[stop]:
+			break
+
+	other_channels = (
+		set([_ for _ in branches[stop]]) - specialChannels
+	)
+	if "path" in branches[stop]:
 		pass
-		# print("wordgen.py: warning: ignored reserved channel 'path'", file=sys.stderr)
 	if expansionCount >= maxDepth**2:
-		#Expansion limit reached
+		# Expansion limit reached
 		print("wordgen.py: expansion limit reached", file=sys.stderr)
-		rets = {"val": list[stop]["val"], "path": [0], "freq":list[stop]["freq"]/listSum}
+		rets = {
+			"val": branches[stop]["val"],
+			"path": [0],
+			"freq": branches[stop]["freq"]/branchesSum
+		}
 		for ch in other_channels:
-			rets[ch] = list[stop].get(ch,"")
+			rets[ch] = branches[stop].get(ch, "")
 		return rets
 	elif depth >= 0:
-		#Recursion limit reached
+		# Recursion limit reached
 		print("wordgen.py: recursion limit reached", file=sys.stderr)
-		rets = {"val": list[stop]["val"], "path": [0], "freq":list[stop]["freq"]/listSum}
+		rets = {
+			"val": branches[stop]["val"],
+			"path": [0],
+			"freq": branches[stop]["freq"]/branchesSum
+		}
 		for ch in other_channels:
-			rets[ch] = list[stop].get(ch,"")
+			rets[ch] = branches[stop].get(ch, "")
 		return rets
 	else:
-		rets = {"val": "", "freq": decimal.Decimal(1)/listSum, "path": [stop]}
-		#If val is empty, simply return the other channels
-		if not list[stop]["val"]:
+		rets = {"val": "", "freq": one/branchesSum, "path": [stop]}
+		# If val is empty, simply return the other channels
+		if not branches[stop]["val"]:
 			for ch in other_channels:
-				rets[ch] = list[stop].get(ch,"")
+				rets[ch] = branches[stop].get(ch, "")
 			return rets
-		#Determine which is a string and which is a reference
+		# Determine which is a string and which is a reference
 		else:
-			for s in Formatter().parse(list[stop]["val"]):
-				#Recurse on reference and insert results into string
+			for s in Formatter().parse(branches[stop]["val"]):
+				# Recurse on reference and insert results into string
+
+				if s[0]:
+					rets["val"] = rets["val"] + s[0]
+					for ch in other_channels:
+						rets[ch] = rets.get(ch, "") + branches[stop].get(ch, "")
 				if s[1]:
 					node = copy.deepcopy(Data[s[1]])
 					if s[2]:
-						_ = re.match(sep,s[2])
+						_ = re.match(sep, s[2])
 						if _:
 							_ = _.end()
-						flist = re.split(sep,s[2][_:])
-						# nstr = s[1]
+						flist = re.split(sep, s[2][_:])
+						# NYI
 						mode = "assign"
-						for i in range(min(len(flist),len(node))):
+						for i in range(min(len(flist), len(node))):
 							if flist[i][0] == "*":
 								mode = "multiply"
 								flist[i] = flist[i][1:]
@@ -297,45 +337,43 @@ def chooseFrom(Data, list, depth=-16, maxDepth=16):
 							node[i]['freq'] = d
 							# nstr += ','+str(d)
 						# Data[nstr] = node
-					# Throws a KeyError on invalid reference. Not caught because
-						# the Python default error message is good enough and there's
-						# nothing for the code to do with an error.
-					#Fill reference
+					# Throws a KeyError on invalid reference. Not caught
+					# because the Python default error message is good
+					# enough and there's nothing for the code to do with
+					# an error.
+
+					# Fill reference
 					tmp = chooseFrom(Data, node, depth+1, maxDepth)
-					
-					rets["val"] = rets["val"] + s[0] + tmp["val"]
+					other_channels.update(
+						set([_ for _ in tmp]) - specialChannels
+					)
+
+					rets["val"] = rets["val"] + tmp["val"]
 					rets["freq"] = rets["freq"]*tmp["freq"]
 					rets["path"].append(tmp["path"])
 
-					if s[0]:
-						#If reference+literal text, insert 
-						for ch in other_channels:
-							rets[ch] = rets.get(ch,"") + list[stop].get(ch,"") + tmp.get(ch, "")
-					else:
-						for ch in other_channels:
-							rets[ch] = rets.get(ch,"") + tmp.get(ch, "")
-				#No reference, only literal text
-				else:
-					rets["val"] = rets["val"] + s[0]
 					for ch in other_channels:
-						rets[ch] = rets.get(ch,"") + list[stop].get(ch,"")
+							rets[ch] = rets.get(ch, "") + tmp.get(ch, "")
 			return rets
+
 
 def filterRE(RE):
 	"""Processes regex from file for use. Currently no-op."""
 	return RE
 
+
 def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 	"""Applies regular expressions in Data to word."""
 	def doStagedMatchReplace(regexes, word):
-		def defaultPlaceholder(str, c):
+		def defaultPlaceholder(defStr, c):
 			# return aChar.sub(str, c)
 			out = ""
-			for t in Formatter().parse(str):
+			for t in Formatter().parse(defStr):
 				out += t[0]
 				if t[1] is not None:
 					out += c
 			return out
+
 		ret = [word]
 		for stage in regexes:
 			if isinstance(stage, dict) and "S" in stage:
@@ -343,37 +381,24 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				state = "S"
 				cline = ""
 				# print("begin: "+ret[-1])
-				if "reversed" in stage and stage["reversed"]&1:
+				if "reversed" in stage and stage["reversed"] & 1:
 					ret[-1] = ret[-1][::-1]
 				for c in ret[-1]:
 					s = stage[state]
 					if c in s or "default" in s:
-						r = s.get(c,s.get("default"))
+						r = s.get(c, s.get("default"))
 						cline += defaultPlaceholder(r[0], c)
-						if len(r)>1:
+						if len(r) > 1:
 							state = r[1]
 					else:
 						cline += c
 						if "return" in s:
 							state = s["return"]
-					# if c in stage[state]:
-						# cline += stage[state][c][0]
-						# if len(stage[state][c])>1:
-							# state = stage[state][c][1]
-					# else:
-						# if "default" in stage[state]:
-							# cline += defaultPlaceholder(stage[state]["default"][0], c)
-							# if len(stage[state]["default"])>1:
-								# state = stage[state]["default"][1]
-						# else:
-							# cline += c
-							# if "return" in stage[state]:
-								# state = stage[state]["return"]
 				if "end" in stage[state]:
 					cline += stage[state]["end"]
-				if "reversed" in stage and stage["reversed"]&1:
+				if "reversed" in stage and stage["reversed"] & 1:
 					ret[-1] = ret[-1][::-1]
-				if "reversed" in stage and stage["reversed"]&2:
+				if "reversed" in stage and stage["reversed"] & 2:
 					cline = cline[::-1]
 				ret.append(cline)
 			elif isinstance(stage, list) and len(stage) > 0 and "m" in stage[0]:
@@ -389,20 +414,34 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 			else:
 				print("replace stage invalid: {0!r}".format(stage), file=sys.stderr)
 		return ret
+
 	ret = {}
-	# for channel in word:
-		# ret[channel] = [word[channel]]
 	if "replace" in Data:
 		assert "path" not in Data["replace"], \
 			"path is not a valid channel for replacement rules"
 		for channel in Data["replace"]:
 			if channel in word:
-				ret[channel] = [word[channel]]+doStagedMatchReplace(Data["replace"][channel], word[channel])
-	else: # compatibility
+				ret[channel] = (
+					[word[channel]]
+					+ doStagedMatchReplace(
+						Data["replace"][channel], word[channel]
+					)
+				)
+	else:  # Compatibility
 		if "replacement" in Data:
-			ret["val"] = [word["val"]]+doStagedMatchReplace(Data["replacement"], word["val"])
+			ret["val"] = (
+				[word["val"]]
+				+ doStagedMatchReplace(
+					Data["replacement"], word["val"]
+				)
+			)
 		if "replaceIPA" in Data:
-			ret["ipa"] = [word["ipa"]]+doStagedMatchReplace(Data["replaceIPA"], word["ipa"])
+			ret["ipa"] = (
+				[word["ipa"]]
+				+ doStagedMatchReplace(
+					Data["replacement"], word["ipa"]
+				)
+			)
 	if keepHistory:
 		for channel in ret:
 			word[channel] = KHSep.join(ret[channel])
@@ -411,22 +450,25 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 			word[channel] = ret[channel][-1]
 	return word
 
-def listAll(Data, node, opts = {
-		"ipa":True,
-		"HTML":False,
-		"path":False,
-		"depth":-16,
-		"keepHistory":False,
-		"keepHistorySep":"→",
-		"ignoreZeros":True,
-		"freq":True,
-	}):
-	'''Traverse all descendants of node (base)'''
+
+def listAll(Data, node, opts={
+		"ipa": True,
+		"HTML": False,
+		"path": False,
+		"depth": -16,
+		"keepHistory": False,
+		"keepHistorySep": "→",
+		"ignoreZeros": True
+}):
+	'''Traverse all descendants of node'''
+
 	def listWords(Data, node, depth, opts, path=[], flist=None):
 		pass
+
 	def nextPath(Data, node, path):
-		
+
 		return path
+
 	# tmpbuf = []
 	ret = DFSPrint(listAllR(
 		Data, node, opts["depth"], opts["ignoreZeros"]
@@ -434,16 +476,16 @@ def listAll(Data, node, opts = {
 	for word in ret:
 		yield formatWord(
 			applyRE(Data, {
-				"val":word[0],
-				"ipa":word[1],
+				"val": word[0],
+				"ipa": word[1],
 				# DFSPrint doesn't work with paths
-				"path":[0],
-				"freq":word[2]}), opts)
+				"path": [0],
+				"freq": word[2]}), opts)
 		# newword = applyRE(Data, {"val":word[0], "ipa":word[1]})
 		# word = (newword["val"], newword["ipa"], word[2])
 		# tmpbuf.append(word[0]+' :\t'+word[1]+'\t'+str(word[2]))
 		time.sleep(0.0001)
-	#return '\n'.join(tmpbuf)
+	# return '\n'.join(tmpbuf)
 
 
 def listAllR(Data, node, depth, ignoreZeros, path=[], flist=None):
@@ -454,9 +496,8 @@ def listAllR(Data, node, depth, ignoreZeros, path=[], flist=None):
 		path.append(node)
 		list = []
 		if not flist:
-			flist = [x.get("freq",decimal.Decimal('1')) for x in Data[node]]
+			flist = [x.get("freq", one) for x in Data[node]]
 		listSum = sum(flist)
-		# print(str(node)+": "+str(listSum)+" = "+" + ".join([str(x) for x in flist]))
 		if ignoreZeros:
 			for i in range(len(Data[node])):
 				if i < len(flist):
@@ -470,68 +511,79 @@ def listAllR(Data, node, depth, ignoreZeros, path=[], flist=None):
 						list.append(Data[node][i])
 		else:
 			list = Data[node]
-			
+
 		matches = []
 		for child in list:
 			# 1+ elements are strings and 1+ elements are references to arrays
-			#Determine which is a string and which is a reference
+			# Determine which is a string and which is a reference
 			matches.append({
 				"t": 'A',
-				"freq": child.get("freq",decimal.Decimal('1'))/listSum,
+				"freq": child.get("freq", one)/listSum,
 				"Acontents": []
 			})
-			#If no val, insert IPA anyway
-			if not child.get("val",""):
-				matches[-1]["Acontents"].append({"t": 'L', "val": '', "ipa": child.get("ipa","")})
+			# If no val, insert IPA anyway
+			if not child.get("val", ""):
+				matches[-1]["Acontents"].append(
+					{"t": 'L', "val": '', "ipa": child.get("ipa", "")}
+				)
 			else:
 				for s in Formatter().parse(child["val"]):
-					#Recurse on reference and insert results into string
+					# Recurse on reference and insert results into string
 					if s[1]:
 						nstr = s[1]
 						node = Data[s[1]]
 						if s[2]:
-							_ = re.match('[^0-9.]+',s[2])
+							_ = re.match('[^0-9.]+', s[2])
 							if _:
 								_ = _.end()
-							flist = re.split('[^0-9.]+',s[2][_:])
+							flist = re.split('[^0-9.]+', s[2][_:])
 							nstr = s[1]
-							for i in range(min(len(flist),len(node))):
+							for i in range(min(len(flist), len(node))):
 								d = decimal.Decimal(flist[i])
 								node[i]['freq'] = d
 								# Flist.append(d)
-								nstr += ','+str(d)
-							if not nstr in Data:
+								nstr += ',' + str(d)
+							if nstr not in Data:
 								Data[nstr] = node
 						else:
 							flist = None
 						# Throws a KeyError on invalid reference. Not caught because
 							# the Python default error message is good enough and
 							# there's nothing for the code to do with an error.
-						#Fill reference
+						# Fill reference
 						tmp = listAllR(Data, nstr, depth+1, ignoreZeros, path, None)
 						if s[0]:
-							#If reference+literal text, insert 
-							matches[-1]["Acontents"].append({"t": 'L', "val": s[0], "ipa": child.get("ipa","")})
+							# If reference+literal text, insert
+							matches[-1]["Acontents"].append({
+								"t": 'L',
+								"val": s[0],
+								"ipa": child.get("ipa", "")
+							})
 							matches[-1]["Acontents"].append(tmp)
 						else:
 							matches[-1]["Acontents"].append(tmp)
-					#No reference, only literal text
+					# No reference, only literal text
 					else:
-							matches[-1]["Acontents"].append({"t": 'L', "val": s[0], "ipa": child.get("ipa","")})
-		#path.pop()
-		return {"t": 'N', "node": node, "sum":listSum, "Ncontents": matches}
+						matches[-1]["Acontents"].append({
+							"t": 'L',
+							"val": s[0],
+							"ipa": child.get("ipa", "")
+						})
+		# path.pop()
+		return {"t": 'N', "node": node, "sum": listSum, "Ncontents": matches}
 	else:
-		#Recursion depth reached
+		# Recursion depth reached
 		print("wordgen.py: recursion depth reached", file=sys.stderr)
 		return {"t": 'T', "node": node, "raw": Data[node]}
-	
+
 
 def DFSPrint(Node, freq=1):
 	'''Generate list of words suitable for printing from tree structure.'''
-	def f_A(Node, freq): # Main case
-		buf1 = [("","", 1)]
+	# Main case
+	def f_A(Node, freq):
+		buf1 = [("", "", 1)]
 		for n in Node["Acontents"]:
-			tfreq = freq*Node["freq"]
+			# tfreq = freq*Node["freq"]
 			buf2 = DFSPrint(n, freq)
 			# print('n: '+str(Node))
 			# print('1: '+str(buf1))
@@ -544,28 +596,38 @@ def DFSPrint(Node, freq=1):
 			# print('3: '+str(buf3))
 			buf1 = buf3
 		return buf1
-	def f_N(Node, freq): # Simply iterate and recurse
+
+	# Simply iterate and recurse
+	def f_N(Node, freq):
 		ret = []
 		# N will always contain As
 		for n in Node["Ncontents"]:
 			ret.extend(DFSPrint(n, freq*n["freq"]))
 		return ret
-	def f_L(Node, freq): #Leaf
-		#print('L: '+str(path))
+
+	# Leaf
+	def f_L(Node, freq):
+		# print('L: '+str(path))
 		return [(Node["val"], Node["ipa"], freq)]
-	def f_V(Node, freq): # Turn into reference
+
+	# Turn into reference
+	def f_V(Node, freq):
 		return [("{"+Node["node"]+"}", "{"+Node["node"]+"}", freq)]
-	def f_T(Node, freq): # Truncation -- pretend it's L but different
-		#print('T: '+str(freq))
+
+	# Truncation -- pretend it's L but different
+	def f_T(Node, freq):
+		# print('T: '+str(freq))
 		return [("{"+Node["node"]+"}", "{"+Node["node"]+"}", freq)]
+
 	switch = {
 		'A': f_A,
-		'N': f_N, 
+		'N': f_N,
 		'L': f_L,
 		'V': f_V,
 		'T': f_T
 	}
 	return switch[Node['t']](Node, freq)
+
 
 def formatWord(word, opts, formatStr=None):
 	'''Print words'''
@@ -579,22 +641,26 @@ def formatWord(word, opts, formatStr=None):
 		if not opts["HTML"]:
 			fstr = ""
 			for ch in opts["channels"]:
-				fstr += "{"+ch+"}\t"
+				fstr += "{"+ch
 				if ch == "path":
-					word[ch] = printPath(word.get(ch,""))
+					word[ch] = printPath(word.get(ch, ""))
+				elif ch == "freq":
+					fstr += ":.4e"
 				else:
-					word[ch] = word.get(ch,"")
+					word[ch] = word.get(ch, "")
+				fstr += "}\t"
 		else:
 			fstr = "<tr>"
 			for ch in opts["channels"]:
 				fstr += "<td>{"+ch+"}</td>"
 				if ch == "path":
-					word[ch] = printPath(word.get(ch,""))
+					word[ch] = printPath(word.get(ch, ""))
 				else:
-					word[ch] = html.escape(word.get(ch,""))
+					word[ch] = html.escape(word.get(ch, ""))
 			fstr += "</tr>"
-		word["val"] = word.get("val","")
-		return formatWord(word,opts,fstr)
+		word["val"] = word.get("val", "")
+		return formatWord(word, opts, fstr)
+
 
 def printPath(path):
 	def recurse(path):
@@ -607,6 +673,7 @@ def printPath(path):
 		return '+' + recurse(path)
 	else:
 		return '+0'
+
 
 def readPath(pathStr):
 	# Simple token separator function - recognizes + [ ] and alphanumerics
@@ -635,22 +702,28 @@ def readPath(pathStr):
 				# This shouldn't be hit -- raise ValueError?
 				pass
 		return ret
+
 	def constructPath(tokens, i=0):
 		ret = []
 		while i < len(tokens):
 			if tokens[i] == "[":
-				tret,ti = constructPath(tokens, i+1)
+				tret, ti = constructPath(tokens, i+1)
 				ret.append(tret)
-				if (ti == len(tokens)):
+				if ti == len(tokens):
 					pass
-					#raise ValueError("Unterminated subpath", i, str(tokens), str(tokens[i:]))
+					# raise ValueError(
+					#	 "Unterminated subpath",
+					#	 i,
+					#	 str(tokens),
+					#	 str(tokens[i:])
+					# )
 				i = ti
 			elif tokens[i] == "]":
-				return ret,i
+				return ret, i
 			else:
 				ret.append(int(gmpy2.mpz(tokens[i], 62)))
 			i += 1
-		return ret,i
+		return ret, i
 	try:
 		return constructPath(list(tokensOf(pathStr)))[0]
 	except ValueError as err:
@@ -658,65 +731,88 @@ def readPath(pathStr):
 		err.args = err.args + (pathStr, )
 		raise
 
+
 def followPath(Data, node, path):
 	# print(node)
-	#root = [{"val": x["val"], "ipa": x.get("ipa",""), "freq":decimal.Decimal(x.get("freq",decimal.Decimal('1')))} for x in Data[node] if x.get("freq",decimal.Decimal('1'))]
-	sumFreq = sum([decimal.Decimal(decimal.Decimal(x.get("freq",decimal.Decimal('1')))) for x in Data[node]])
-	SNode = {"val": Data[node][path[0]].get("val",""), "ipa": Data[node][path[0]].get("ipa",""), "freq":(decimal.Decimal(Data[node][path[0]].get("freq",decimal.Decimal('1')))/sumFreq)}
-	rets = {"val":"", "ipa":"", "freq":decimal.Decimal('1')}
-	#print(SNode)
-	for i,s in enumerate(Formatter().parse(SNode["val"])):
-		#Recurse on reference and insert results into string
+	# root = [
+	# {
+		# "val": x["val"],
+		# "ipa": x.get("ipa",""),
+		# "freq":decimal.Decimal(x.get("freq",one))
+	# }
+	# for x in Data[node] if x.get("freq",one)
+	# ]
+	sumFreq = sum(
+		[decimal.Decimal(x.get("freq", one)) for x in Data[node]]
+	)
+	SNode = {
+		"val": Data[node][path[0]].get("val", ""),
+		"ipa": Data[node][path[0]].get("ipa", ""),
+		"freq": (
+			decimal.Decimal(Data[node][path[0]].get("freq", one))
+			/ sumFreq
+		)
+	}
+	rets = {"val": "", "ipa": "", "freq": one}
+	# print(SNode)
+	for i, s in enumerate(Formatter().parse(SNode["val"])):
+		# Recurse on reference and insert results into string
 		if s[1]:
 			# Throws a KeyError on invalid reference. Not caught because
 				# the Python default error message is good enough and there's
 				# nothing for the code to do with an error.
-			#Fill reference
+			# Fill reference
 			tmp = followPath(Data, s[1], path[i+1])
-			
+
 			rets["val"] = rets["val"] + s[0] + tmp["val"]
 			rets["freq"] = rets["freq"]*tmp["freq"]
 			if s[0]:
-				#If reference+literal text, insert 
+				# If reference+literal text, insert
 				rets["ipa"] = rets["ipa"] + SNode["ipa"] + tmp["ipa"]
 			else:
 				rets["ipa"] = rets["ipa"] + tmp["ipa"]
-		#No reference, only literal text
+		# No reference, only literal text
 		else:
 			rets["val"] = rets["val"] + s[0]
 			rets["ipa"] = rets["ipa"] + SNode["ipa"]
 	return rets
-		
+
+
 def toBNF(Data, StartDef):
 	nodes = Data.copy()
 	for N in set(["replace", "replaceIPA", "replacement", "channels"]):
 		nodes.pop(N)
-	
+	pass
+
 
 def main():
 	global expansionCount
+
 	# Enable shorthand for decimal numbers:
 	def dec_repr(dumper, data):
 		return dumper.represent_scalar(u'!d', 'd'+str(data))
+
 	yaml.Dumper.add_representer(decimal.Decimal, dec_repr)
 	yaml.SafeDumper.add_representer(decimal.Decimal, dec_repr)
 	yaml.Loader.add_implicit_resolver(u'!d', re.compile(r'd\d*\.?\d+'), ['d'])
 	yaml.SafeLoader.add_implicit_resolver(u'!d', re.compile(r'd\d*\.?\d+'), ['d'])
+
 	def dec_cons(loader, node):
 		return decimal.Decimal(loader.construct_scalar(node)[1:])
+
 	yaml.Loader.add_constructor(u'!d', dec_cons)
 	yaml.SafeLoader.add_constructor(u'!d', dec_cons)
-	
+
 	# Command-line options
 	parser = optparse.OptionParser(
 			usage="usage: %prog [options] <datafile> <root> [command]\n"
 			"  [command] may be either 'gen' [default], 'list', or 'diag'")
-	
+
 	genGroup = optparse.OptionGroup(parser, "Options for gen")
 	listGroup = optparse.OptionGroup(parser, "Options for list")
 	diagGroup = optparse.OptionGroup(parser, "Options for diag")
 	debugGroup = optparse.OptionGroup(parser, "Debugging options")
-	
+
 	parser.add_option("-c", "--channel", dest="channels",
 			action="append", metavar="CHANNEL", default=[],
 			help="print CHANNEL (can be used multiple times)")
@@ -742,12 +838,12 @@ def main():
 			type="string", metavar="FMT_STR", default=[],
 			help="Format string for printing words")
 	parser.add_option_group(genGroup)
-	
+
 	listGroup.add_option("-0", "--listZeros", dest="ignoreZeros",
 			action="store_false", default=True,
 			help="include 0-frequency values in list")
 	parser.add_option_group(listGroup)
-	
+
 	diagGroup.add_option("--regex", dest="dbgRE",
 			action="store_true", default=False,
 			help="Dump regular expressions after filtering.")
@@ -761,7 +857,7 @@ def main():
 			action="store_true", default=False,
 			help="Export to BNF (val only).")
 	parser.add_option_group(diagGroup)
-	
+
 	debugGroup.add_option("-P", "--path", dest="channels",
 			action="append_const", const="path",
 			help="print paths for generated words (-c path)")
@@ -773,15 +869,15 @@ def main():
 			type="string", default=" → ", metavar="SEP",
 			help="what to insert between regex applications")
 	debugGroup.add_option("-r", "--seed", dest="seed",
-			action="store", default=None, 
+			action="store", default=None,
 			help="random seed")
-	debugGroup.add_option("-f", "--showFreqs", dest="showFreqs",
-			action="store_true", default=False,
+	debugGroup.add_option("-f", dest="channels",
+			action="append_const", const="freq",
 			help="show calculated frequencies (-c freq)")
 	parser.add_option_group(debugGroup)
-	
+
 	(options, args) = parser.parse_args()
-	
+
 	if len(args) < 2:
 		parser.error("Not enough arguments")
 	if len(args) < 3:
@@ -799,21 +895,30 @@ def main():
 	if not options.noVal:
 		options.channels = ['val'] + options.channels
 	opts = {
-		"HTML":options.HTMLmode,
-		"path":options.path,
-		"depth":-1*options.depth,
-		"keepHistory":options.keepHistory,
-		"keepHistorySep":options.KHSep,
-		"ignoreZeros":options.ignoreZeros,
-		"freq":options.showFreqs,
-		"channels":options.channels,
+		"HTML": options.HTMLmode,
+		"path": options.path,
+		"depth": -1*options.depth,
+		"keepHistory": options.keepHistory,
+		"keepHistorySep": options.KHSep,
+		"ignoreZeros": options.ignoreZeros,
+		"channels": options.channels,
 	}
 	random.seed(options.seed)
-	Data = yaml.safe_load(open(args[0],'r', encoding="utf8"))
+	Data = yaml.safe_load(open(args[0], 'r', encoding="utf8"))
 	if args[2] == "gen":
-		if False: # Debug stuff
+		if False:  # Debug stuff
 			try:
-				word = applyRE(Data, chooseFrom(Data, Data[args[1]], -1*options.depth, options.depth), options.keepHistory, options.KHSep)
+				word = applyRE(
+					Data,
+					chooseFrom(
+						Data,
+						Data[args[1]],
+						-1*options.depth,
+						options.depth
+					),
+					options.keepHistory,
+					options.KHSep
+				)
 				# print(word["path"])
 				# print(formatWord(word, opts))
 				P = Path(Data, args[1], word["path"])
@@ -836,23 +941,35 @@ def main():
 				print(e)
 		Header = ""
 		# Default some channel names for printing
-		channels = {"val":"Words","ipa":"IPA","path":"Path"}
+		channels = {"val": "Words", "ipa": "IPA", "path": "Path"}
 		if "channels" in Data:
 			for ch, name in Data["channels"].items():
 				channels[ch] = name
 		if options.HTMLmode:
 			Header = "<table><tr>"
 			for ch in options.channels:
-				Header += "<th>"+html.escape(channels.get(ch,ch))+"</th>"
+				Header += "<th>"+html.escape(channels.get(ch, ch))+"</th>"
 			Header += "</tr>"
 			print(Header)
 		else:
 			if not options.quiet:
-				Header += '\t'.join([channels.get(ch,ch) for ch in options.channels])
+				Header += '\t'.join([
+					channels.get(ch, ch) for ch in options.channels
+				])
 				print(Header)
 				print('-'*40)
-		for i in range(options.num):
-			word = applyRE(Data, chooseFrom(Data, Data[args[1]], -1*options.depth, options.depth), options.keepHistory, options.KHSep)
+		for _ in range(options.num):
+			word = applyRE(
+				Data,
+				chooseFrom(
+					Data,
+					Data[args[1]],
+					-1*options.depth,
+					options.depth
+				),
+				options.keepHistory,
+				options.KHSep
+			)
 			expansionCount = 0
 			print(formatWord(word, opts))
 		if options.HTMLmode:
@@ -868,11 +985,18 @@ def main():
 					for stage in Data["replace"][channel]:
 						print('  [')
 						for rule in stage:
-							print('    {'+"m: {m}, r: {r}".format(m=repr(filterRE(rule['m'])),r=repr(rule['r']))+'}')
+							print(
+								'    {'
+								+ "m: {m}, r: {r}".format(
+									m=repr(filterRE(rule['m'])),
+									r=repr(rule['r'])
+								)
+								+ '}'
+							)
 						print('  ]')
 		if options.dbgNodes:
 			G = SwitchingGraph(Data)
-			G.addNode(":arg", [{"val":args[1]}])
+			G.addNode(":arg", [{"val": args[1]}])
 			print(repr(G))
 			print(repr(G[":arg"]))
 		if options.dbgRETest:
@@ -880,7 +1004,8 @@ def main():
 				pass
 		if options.dbgBNFExport:
 			print('-'*40)
-			print(toBNF(Data))
+			print(toBNF(Data, args[1]))
 			print('-'*40)
-		
+
+
 main()

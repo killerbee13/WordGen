@@ -160,7 +160,7 @@ replace:
         r: ''
       # non-final ;
     - - m: ';'
-        r: "-"
+        r: ""
   ipa:
     - - m: ';;+'
         r: ';'
