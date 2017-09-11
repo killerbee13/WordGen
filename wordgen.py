@@ -3,21 +3,23 @@ import random
 import time
 import re
 import decimal
-import gmpy2
 import optparse
 import copy
 import collections
 import html
+from string import Formatter
 
 # import pdb
 
-from string import Formatter
+import gmpy2
 import yaml
+from tr import tr
 
 sep = re.compile('[^0-9.]*[^0-9.+*=]')
 aChar = re.compile('(.)')
 expansionCount = 0
 one = decimal.Decimal('1')
+channels = {}
 
 
 class Path:
@@ -259,7 +261,7 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 		x["val"] = x.get("val", "")
 		x["freq"] = decimal.Decimal(x.get("freq", one))
 		# Ensure that every channel named exists
-		for ch in Data["channels"]:
+		for ch in channels:
 			x[ch] = x.get(ch, "")
 	branchesSum = sum([x["freq"] for x in branches])
 	a = decimal.Decimal(random.uniform(0, float(branchesSum)))
@@ -374,6 +376,22 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 					out += c
 			return out
 
+		def doMaps(maps, matches, c):
+			def doFSMMatch(map1, map2, c, S):
+				if tr(map1, "", c, "cd"):
+					return (True, tr(map1, map2, c), S)
+				return (False, "", None, None)
+
+			for map in maps:
+				m = doFSMMatch(map[0], map[1], c, map[2] if len(map) > 2 else None)
+				if m[0]:
+					return (m[1], m[2])
+			for match in matches:
+				m = doFSMMatch(match[0], match[0], c, match[1] if len(match) > 1 else None)
+				if m[0]:
+					return (m[1], m[2])
+			return False
+
 		ret = [word]
 		for stage in regexes:
 			if isinstance(stage, dict) and "S" in stage:
@@ -385,8 +403,18 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 					ret[-1] = ret[-1][::-1]
 				for c in ret[-1]:
 					s = stage[state]
-					if c in s or "default" in s:
-						r = s.get(c, s.get("default"))
+					m = doMaps(s.get("map", []), s.get("match", []), c)
+					if c in s:
+						r = s[c]
+						cline += defaultPlaceholder(r[0], c)
+						if len(r) > 1:
+							state = r[1]
+					elif m:
+						cline += m[0]
+						if m[1]:
+							state = m[1]
+					elif "default" in s:
+						r = s["default"]
 						cline += defaultPlaceholder(r[0], c)
 						if len(r) > 1:
 							state = r[1]
@@ -439,7 +467,7 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 			ret["ipa"] = (
 				[word["ipa"]]
 				+ doStagedMatchReplace(
-					Data["replacement"], word["ipa"]
+					Data["replaceIPA"], word["ipa"]
 				)
 			)
 	if keepHistory:
@@ -459,7 +487,7 @@ def listAll(Data, node, opts={
 		"keepHistory": False,
 		"keepHistorySep": "→",
 		"ignoreZeros": True
-}):
+	}):
 	'''Traverse all descendants of node'''
 
 	def listWords(Data, node, depth, opts, path=[], flist=None):

@@ -1,58 +1,193 @@
-Verb:
-  - val: "{VerbRoot}0"
+channels:
+  val: "English Text"
+  def: "Lexemes"
+
+VerbSuf:
+  - val: "0"
     def: ".inf"
-  - val: "{VerbRoot}1"
+  - val: "1"
     def: ".3sPres"
-  - val: "{VerbRoot}2"
+  - val: "2"
     def: ".1sPres"
-  - val: "{VerbRoot}3"
+  - val: "3"
     def: ".pPres"
-  - val: "{VerbRoot}4"
+  - val: "4"
     def: ".sPast"
-  - val: "{VerbRoot}5"
+  - val: "5"
     def: ".pPast"
-  - val: "{VerbRoot}6"
+  - val: "6"
     def: ".PresPart"
-  - val: "{VerbRoot}7"
+  - val: "7"
     def: ".PastPart"
+Verb/1:
+  - val: "{AuxVerbRoot}{VerbSuf:0 0 1 0 1 0 0 0}"
+  - val: "{VerbRoot}{VerbSuf:0 0 1 0 1 0 0 0}"
+Verb/s:
+  - val: "{AuxVerbRoot}{VerbSuf:0 1 0 0 1 0 0 0}"
+  - val: "{VerbRoot}{VerbSuf:0 1 0 0 1 0 0 0}"
+Verb/p:
+  - val: "{AuxVerbRoot}{VerbSuf:0 0 0 1 0 1 0 0}"
+  - val: "{VerbRoot}{VerbSuf:0 0 0 1 0 1 0 0}"
+Verb/inf:
+  - val: "{AuxVerbRoot}{VerbSuf:0 0 0 0 0 0 1 0}"
+  - val: "{VerbRoot}{VerbSuf:0 0 0 0 0 0 1 0}"
+CVerb/1:
+  - val: "{COP}{VerbSuf:0 0 1 0 1 0 0 0}"
+CVerb/s:
+  - val: "{COP}{VerbSuf:0 1 0 0 1 0 0 0}"
+CVerb/p:
+  - val: "{COP}{VerbSuf:0 0 0 1 0 1 0 0}"
+Verb/inf:
+  - val: "{COP}{VerbSuf:0 0 0 0 0 0 1 0}"
 
 Pronoun:
-  - val: "P1s"  # I/me
-  - val: "P1p"  # we/we
-  - val: "P2"   # you/you
-  - val: "P3si" # it/it
-  - val: "P3sf" # she/her
-  - val: "P3sm" # he/him
-  - val: "P3sn" # xe/xem
-  - val: "P3s"  # they/them
-  - val: "P3p"  # they/them
-  - val: "P3so" # one/one
+  - val: "NP1s"  # I/me
+    def: "1s"
+  - val: "NP1p"  # we/we
+    def: "1p"
+  - val: "NP2s"   # you/you
+    def: "2s"
+  - val: "NP2p"   # you/you
+    def: "2p"
+  - val: "NP3si" # it/it
+    def: "3si"
+  - val: "NP3sf" # she/her
+    def: "3sf"
+  - val: "NP3sm" # he/him
+    def: "3sm"
+  - val: "NP3sn" # xe/xem
+    def: "3sn"
+  - val: "NP3s"  # they/them
+    def: "3s"
+  - val: "NP3so" # one/one
+    def: "3.indef"
+  - val: "NP3p"  # they/them
+    def: "3p"
 
 Sentence:
-  - val: "{Subject}{Predicate}"
+  - val: "{Subject/1}{sp}{Predicate/1}."
+  - val: "{Subject/s}{sp}{Predicate/s}."
+  - val: "{Subject/p}{sp}{Predicate/p}."
+  - val: "{AuxQuestion}"
+    freq: 0
+AuxQuestion:
+  - val: "{Verb/1:1 0}{sp}{Subject/1}?"
+  - val: "{Verb/1:1 0}{sp}{Subject/1}{sp}{Object}?"
+  - val: "{Verb/1:1 0}{sp}{Subject/1}{sp}{Verb/inf}{sp}{Object}?"
+  - val: "{Verb/s:1 0}{sp}{Subject/s}?"
+  - val: "{Verb/s:1 0}{sp}{Subject/s}{sp}{Object}?"
+  - val: "{Verb/s:1 0}{sp}{Subject/s}{sp}{Verb/inf}{sp}{Object}?"
+  - val: "{Verb/p:1 0}{sp}{Subject/p}?"
+  - val: "{Verb/p:1 0}{sp}{Subject/p}{sp}{Object}?"
+  - val: "{Verb/p:1 0}{sp}{Subject/p}{sp}{Verb/inf}{sp}{Object}?"
 
-Subject:
-  - val: "NA{Pronoun}"
+Subject/1:
+  - val: "{Pronoun:1 0 0 0 0 0 0 0 0 0 0}S"
+Subject/s:
+  - val: "{Pronoun:0 0 0 0 1 1 1 1 0 1 0}S"
+  - val: "{Noun/s}"
+Subject/p:
+  - val: "{Pronoun:0 1 1 1 0 0 0 0 1 0 1}S"
+  - val: "{Noun/p}"
 Object:
-  - val: "NP{Pronoun}"
+  - val: "{Pronoun}O"
+  - val: "{Pronoun}D"
+  - val: "{Noun/s}"
+  - val: "{Noun/p}"
 
-Predicate:
-  - val: "{Verb}"
+Predicate/1:
+  - val: "{Verb/1}"
+  - val: "{Verb/1}{sp}{Object}"
+  - val: "{CVerb/1}{sp}{Adjective}"
+Predicate/s:
+  - val: "{Verb/s}"
+  - val: "{Verb/s}{sp}{Object}"
+  - val: "{CVerb/s}{sp}{Adjective}"
+Predicate/p:
+  - val: "{Verb/p}"
+  - val: "{Verb/p}{sp}{Object}"
+  - val: "{CVerb/p}{sp}{Adjective}"
 
 VerbRoot:
-  - val: "V#01"
-    def: "is"
+  - val: "{AuxVerbRoot}"
+  - val: "V#101"
+    def: "see"
+  - val: "V#102"
+    def: "poke"
+AuxVerbRoot:
+  - val: "{COP}"
   - val: "V#02"
     def: "do"
+COP:
+  - val: "V#01"
+    def: "be"
+
+Noun/s:
+  - val: "{Det:1 1 1 0}{sp}{NounRoot}s"
+  - val: "{Det:1 1 1 0}{sp}{AdjPhrase}{sp}{NounRoot}s"
+Noun/p:
+  - val: "{NounRoot}p"
+    def: ".p"
+  - val: "{Det:1 1 0 1}{sp}{NounRoot}p"
+    def: ".p"
+  - val: "{AdjPhrase}{sp}{NounRoot}p"
+    def: ".p"
+  - val: "{Det:1 1 0 1}{sp}{AdjPhrase}{sp}{NounRoot}p"
+    def: ".p"
+
+Det:
+  - val: "{Pronoun}G"
+  - val: "the"
+    def: "the"
+  - val: "@"
+    def: "a"
+  - val: "some"
+    def: "some"
+
+NounRoot:
+  - val: "N#01"
+    def: "chicken"
+  - val: "N#02"
+    def: "box"
+  - val: "N#03"
+    def: "thing"
+  - val: "N#04"
+    def: "ox"
+  - val: "N#05"
+    def: "goose"
+  - val: "N#06"
+    def: "fish"
+  - val: "N#07"
+    def: "deer"
+
+AdjPhrase:
+  - val: "{Adjective}"
+
+Adjective:
+  - val: "A#01-"
+    def: "red"
+  - val: "A#02-"
+    def: "blue"
+  - val: "A#03-"
+    def: "yellow"
+  - val: "A#04-"
+    def: "green"
+
+sp:
+  - val: " "
+    def: " "
 
 replace:
   val:
     - S:
         V: ["", V]
+        N: ["", N]
+        A: ["", A]
       V:
         "#": ["", V.]
       V.:
         '0': ["", V0]
+        '1': ["", V1]
       V0:
         '1': ["", V01]
         '2': ["", V02]
@@ -74,4 +209,183 @@ replace:
         '5': ["did", S]
         '6': ["doing", S]
         '7': ["done", S]
+      V1:
+        '0': ["", V10]
+      V10:
+        '1': ["", V101]
+        '2': ["", V102]
+      V101:
+        '0': ["see", S]
+        '1': ["sees", S]
+        '2': ["see", S]
+        '3': ["see", S]
+        '4': ["saw", S]
+        '5': ["saw", S]
+        '6': ["seeing", S]
+        '7': ["seen", S]
+      V102:
+        '0': ["poke", S]
+        '1': ["pokes", S]
+        '2': ["poke", S]
+        '3': ["poke", S]
+        '4': ["poked", S]
+        '5': ["poked", S]
+        '6': ["poking", S]
+        '7': ["poked", S]
+      N:
+        P: ["", Pro]
+        "#": ["", N.]
+      N.:
+        '0': ["", N0]
+      N0:
+        '1': ["chicken", regPlu]
+        '2': ["box", ePlu]
+        '3': ["thing", regPlu]
+        '4': ["ox", nPlu]
+        '5': ["", N05]
+        '6': ["fish", noPlu]
+        '7': ["deer", noPlu]
+      regPlu:
+        p: ["s", S]
+        s: ["", S]
+      ePlu:
+        p: ["es", S]
+        s: ["", S]
+      nPlu:
+        p: ["en", S]
+        s: ["", S]
+      noPlu:
+        p: ["", S]
+        s: ["", S]
+      N05:
+        p: ["geese", S]
+        s: ["goose", S]
+      Pro:
+        '1': ["", P1]
+        '2': ["", P2]
+        '3': ["", P3]
+      P1:
+        s: ["", P1s]
+        p: ["", P1p]
+      P1s:
+        S: ["I", S]
+        O: ["me", S]
+        G: ["my", S]
+        D: ["mine", S]
+        R: ["myself", S]
+      P1p:
+        S: ["we", S]
+        O: ["us", S]
+        G: ["our", S]
+        D: ["ours", S]
+        R: ["ourselves", S]
+      P2:
+        s: ["", P2s]
+        p: ["", P2p]
+      P2s:
+        S: ["you", S]
+        O: ["you", S]
+        G: ["your", S]
+        D: ["yours", S]
+        R: ["yourself", S]
+      P2p:
+        S: ["you", S]
+        O: ["you", S]
+        G: ["your", S]
+        D: ["yours", S]
+        R: ["yourselves", S]
+      P3:
+        s: ["",P3s]
+        p: ["",P3p]
+      P3s:
+        S: ["they", S]
+        O: ["them", S]
+        G: ["their", S]
+        D: ["theirs", S]
+        R: ["themself", S]
+        i: ["", P3si]
+        f: ["", P3sf]
+        m: ["", P3sm]
+        n: ["", P3sn]
+        o: ["", P3so]
+      P3si:
+        S: ["it", S]
+        O: ["it", S]
+        G: ["its", S]
+        D: ["its", S]
+        R: ["itself", S]
+      P3sf:
+        S: ["she", S]
+        O: ["her", S]
+        G: ["her", S]
+        D: ["hers", S]
+        R: ["herself", S]
+      P3sm:
+        S: ["he", S]
+        O: ["him", S]
+        G: ["his", S]
+        D: ["his", S]
+        R: ["himself", S]
+      P3sn:
+        S: ["xe", S]
+        O: ["xem", S]
+        G: ["xyr", S]
+        D: ["xyrs", S]
+        R: ["xemself", S]
+      P3so:
+        S: ["one", S]
+        O: ["one", S]
+        G: ["one's", S]
+        D: ["one's", S]
+        R: ["oneself", S]
+      P3p:
+        S: ["they", S]
+        O: ["them", S]
+        G: ["their", S]
+        D: ["theirs", S]
+        R: ["themself", S]
+      A:
+        "#": ["", A.]
+      A.:
+        '0': ["", A0]
+        '1': ["", A1]
+      A0:
+        '1': ["", A01]
+        '2': ["", A02]
+        '3': ["", A03]
+        '4': ["", A04]
+      A01:
+        '-': ["red", S]
+        '>': ["redder", S]
+        ']': ["reddest", S]
+      A02:
+        '-': ["blue", S]
+        '>': ["bluer", S]
+        ']': ["bluest", S]
+      A03:
+        '-': ["yellow", S]
+        '>': ["yellower", S]
+        ']': ["yellowest", S]
+      A04:
+        '-': ["green", S]
+        '>': ["greener", S]
+        ']': ["greenest", S]
+    - reversed: 3
+      S: 
+        match:
+          - ["aeiou", V]
+          - ["bcdfghjklmnpqrstvwxyz", C]
+      V:
+        '@': ["na", S]
+        match:
+          - ["bcdfghjklmnpqrstvwxyz", C]
+      C:
+        '@': ["a", S]
+        match:
+          - ["aeiou", V]
+    - S:
+        map:
+          - ["a-z","A-Z", E]
+        return: E
+      E: {}
       
