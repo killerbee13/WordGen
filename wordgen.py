@@ -364,7 +364,7 @@ def filterRE(RE):
 	return RE
 
 
-def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
+def applyRE(Data, word, keepHistory=False, KHSep=" → "):
 	"""Applies regular expressions in Data to word."""
 	def doStagedMatchReplace(regexes, word):
 		def defaultPlaceholder(defStr, c):
@@ -387,7 +387,7 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				if m[0]:
 					return (m[1], m[2])
 			for match in matches:
-				m = doFSMMatch(match[0], match[0], c, match[1] if len(match) > 1 else None)
+				m = doFSMMatch(match[0], match[0], c, match[1])
 				if m[0]:
 					return (m[1], m[2])
 			return False
@@ -428,7 +428,7 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 					ret[-1] = ret[-1][::-1]
 				if "reversed" in stage and stage["reversed"] & 2:
 					cline = cline[::-1]
-				ret.append(cline)
+				ret.append(cline[:])
 			elif isinstance(stage, list) and len(stage) > 0 and "m" in stage[0]:
 				for rule in stage:
 					if "c" in rule:
@@ -438,7 +438,7 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 				cline = ret[-1]
 				for rule in stage:
 					cline = rule["c"].sub(rule["r"], cline)
-				ret.append(cline)
+				ret.append(cline[:])
 			else:
 				print("replace stage invalid: {0!r}".format(stage), file=sys.stderr)
 		return ret
@@ -450,23 +450,20 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → ", endToken='\025'):
 		for channel in Data["replace"]:
 			if channel in word:
 				ret[channel] = (
-					[word[channel]]
-					+ doStagedMatchReplace(
+					doStagedMatchReplace(
 						Data["replace"][channel], word[channel]
 					)
 				)
 	else:  # Compatibility
 		if "replacement" in Data:
 			ret["val"] = (
-				[word["val"]]
-				+ doStagedMatchReplace(
+				doStagedMatchReplace(
 					Data["replacement"], word["val"]
 				)
 			)
 		if "replaceIPA" in Data:
 			ret["ipa"] = (
-				[word["ipa"]]
-				+ doStagedMatchReplace(
+				doStagedMatchReplace(
 					Data["replaceIPA"], word["ipa"]
 				)
 			)

@@ -29,6 +29,18 @@ replace:
         r: ""
     - - m: ';'
         r: "."
+  newipa:
+    # - - m: 'fm'
+        # r: 'ɸm'
+      # - m: 'vm'
+        # r: 'βm'
+    # Clean up generation artifacts
+    - - m: '^;'
+        r: ""
+      - m: ';$'
+        r: ""
+    - - m: ';'
+        r: "."
 
 #---Separators ---#
 .:  [{val: ";", org: ";", ipa: ";", newipa: ";"}]
@@ -85,7 +97,7 @@ Cons/F:
   - {val: "v", org: "v", ipa: "v", newipa: "v", freq: d43}
   - {val: "s", org: "s", ipa: "s", newipa: "s", freq: d69}
   - {val: "z", org: "z", ipa: "z", newipa: "z", freq: d75}
-  - {val: "th", org: "th", ipa: "θ", newipa: "θ", freq: d50}
+  - {val: "ţ", org: "th", ipa: "θ", newipa: "θ", freq: d50}
   - {val: "š", org: "sh", ipa: "\u0283", newipa: "\u0283", freq: d30}
   - {val: "ž", org: "zh", ipa: "\u0292", newipa: "\u0292", freq: d48}
   - {val: "l", org: "sl", ipa: "\u026c", newipa: "\u026c", freq: d33}

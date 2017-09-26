@@ -162,6 +162,11 @@ replace:
     - - m: ';'
         r: ""
   ipa:
+      # I make mistakes, so fix them
+    - - m: 'f'
+        r: 'ɸ'
+      - m: 'v'
+        r: 'β'
     - - m: ';;+'
         r: ';'
     - - m: '(i|e)%;%'
@@ -542,10 +547,6 @@ VerbStem:
 Verb/TAp:
   - val: "{Verb/TAp/T}{Verb/TAp/Ap}"
     freq: 4
-  - val: "{Verb/TAp/DP}"
-  - val: "{Verb/TAp/PP}"
-  - val: "{Verb/TAp/C}"
-  - val: "{Verb/TAp/F}"
 Verb/TAp/T:
   - val: "si%{.}"
     ipa: "si%"
@@ -570,57 +571,6 @@ Verb/TAp/Ap:
     gloss: "HAB"
     acc: "p"
   - gloss: "[PFV]"
-Verb/TAp/DP:
-  - val: "si;gů{.}"
-    ipa: "si;gɵ"
-    gloss: "DP.CONT"
-    acc: HL
-  - val: "si;ků{.}"
-    ipa: "si;kɵ"
-    gloss: "DP.HAB"
-    acc: HL
-  - val: "sů{.}"
-    ipa: "sɵ"
-    gloss: "DP[PFV]"
-    acc: L
-Verb/TAp/PP:
-  - val: "ze;gů{.}"
-    ipa: "ze;gɵ"
-    gloss: "PP.CONT"
-    acc: HL
-  - val: "ze;ků{.}"
-    ipa: "ze;kɵ"
-    gloss: "PP.HAB"
-    acc: HL
-  - val: "zů{.}"
-    ipa: "zɵ"
-    gloss: "PP[PFV]"
-    acc: L
-Verb/TAp/C:
-  - val: "gů{.}"
-    ipa: "gɵ"
-    gloss: "[C]CONT"
-    acc: L
-  - val: "ků{.}"
-    ipa: "kɵ"
-    gloss: "[C]HAB"
-    acc: L
-  - val: ""
-    gloss: "[C.PFV]"
-    acc: ""
-Verb/TAp/F:
-  - val: "bi;gů{.}"
-    ipa: "bi;gɵ"
-    gloss: "F.CONT"
-    acc: HL
-  - val: "bi;ků{.}"
-    ipa: "bi;kɵ"
-    gloss: "F.HAB"
-    acc: HL
-  - val: "bů{.}"
-    ipa: "bɵ"
-    gloss: "F[PFV]"
-    acc: L
 Verb/M:
   # -a
   - val: "\ue001"
@@ -634,7 +584,7 @@ Verb/M:
     acc: L
   # -fu/-afu
   - val: "fu"
-    ipa: "fu"
+    ipa: "ɸu"
     gloss: ":COND"
     acc: H
   # -W/-U
@@ -889,7 +839,7 @@ VerbalRoot/P:
     acc: H
     freq: d100
   - val: "skoṙffa"
-    ipa: "skoɚfːa"
+    ipa: "skoɚɸːa"
     gloss: "overdo_farewell"
     acc: H
     freq: d100
