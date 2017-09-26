@@ -19,9 +19,9 @@ number:
   - val: "{millions}"
     freq: 1
   - val: ":{digits}"
-    freq: .1
+    freq: d.1
   - val: ":{phone}"
-    freq: .5
+    freq: d.5
 
 nulla: [{ipa: "0"}]
 
@@ -196,9 +196,9 @@ hundreds:
   - val: "{nulla}{tenVal}"
     freq: 9
   - val: "{nulla}{nulla}{onesNoZ}"
-    freq: .9
+    freq: d.9
   - val: "{nulla}{nulla}{nulla}"
-    freq: .1
+    freq: d.1
 
 hundredVal:
   - val: "{onesNoZ} hundred and {tenVal}"
@@ -210,9 +210,9 @@ hundredVal:
   - val: "{nulla}{tenVal}"
     freq: 9
   - val: "{nulla}{nulla}{onesNoZ}"
-    freq: .9
+    freq: d.9
   - val: "{nulla}{nulla}{nulla}"
-    freq: .1
+    freq: d.1
 
 hundredsNoZ:
   - val: "{onesNoZ} hundred and {tenVal}"
@@ -259,7 +259,7 @@ millions:
     ipa: ","
     freq: 100
   - val: "{nulla}{comma}{hundredThou}"
-    freq: .1
+    freq: d.1
 
 digits:
   - val: "{ones} {digits}"

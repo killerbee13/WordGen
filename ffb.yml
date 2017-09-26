@@ -17,6 +17,10 @@ Word2:
     freq: d.5
   - val: "{Syllable:1 0 1}"
 
+Compound:
+  - val: "{Word}{Word}"
+  - val: "{Word}-{Word}"
+
 Syllable:
   - val: "{Consonant}{Vowel}"
   #only at beginning of word

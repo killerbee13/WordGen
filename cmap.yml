@@ -1,38 +1,80 @@
 file:
+  - val: "{preamble}{cmaps}"
+
+cmaps:
   - val: "{cmap}"
-    freq: d64
   - val: "{cmap}{cmap}"
-    freq: d128
   - val: "{cmap}{cmap}{cmap}"
-    freq: d64
   - val: "{cmap}{cmap}{cmap}{cmap}"
-    freq: d32
   - val: "{cmap}{cmap}{cmap}{cmap}{cmap}"
-    freq: d16
   - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
-    freq: d8
   - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
-    freq: d4
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
+  - val: "{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}{cmap}"
 
 cmap:
   - val: "{sep}{str}{sep}{clist}"
 
 clist:
-  - val: "256{space}{clist/256}"
-    freq: d.1
-  - val: "16{space}{clist/16}"
+  - val: "{clist/100:0}"
+    freq: 100
+  - val: "1{clist/100:1 0}{clist/64}{clist/32}{clist/4}"
+    freq: 100
+  - val: "2{clist/56}{clist/128}{clist/64}{clist/8}"
+    freq: 56
+
+clist/10:
+  - val: "0{space}"
   - val: "1{space}{clist/1}"
-  - val: "12{space}{clist/8}{clist/4}"
-  - val: "13{space}{clist/8}{clist/4}{clist/1}"
+  - val: "2{space}{clist/2}"
+  - val: "3{space}{clist/2}{clist/1}"
+  - val: "4{space}{clist/4}"
+  - val: "5{space}{clist/4}{clist/1}"
+  - val: "6{space}{clist/4}{clist/2}"
+  - val: "7{space}{clist/4}{clist/2}{clist/1}"
+  - val: "8{space}{clist/8}"
+  - val: "9{space}{clist/8}{clist/1}"
+clist/100:
+  - val: "0{clist/10}"
+  - val: "{clist/10:0}"
+  - val: "1{clist/10}{clist/8}{clist/2}"
+  - val: "2{clist/10}{clist/16}{clist/4}"
+  - val: "3{clist/10}{clist/16}{clist/8}{clist/4}{clist/2}"
+  - val: "4{clist/10}{clist/32}{clist/8}"
+  - val: "5{clist/10}{clist/32}{clist/16}{clist/2}"
+  - val: "6{clist/10}{clist/32}{clist/16}{clist/8}{clist/4}"
+  - val: "7{clist/10}{clist/64}{clist/4}{clist/2}"
+  - val: "8{clist/10}{clist/64}{clist/16}"
+  - val: "9{clist/10}{clist/64}{clist/16}{clist/8}{clist/2}"
+clist/56:
+  - val: "0{clist/10}"
+  - val: "1{clist/10}{clist/8}{clist/2}"
+  - val: "2{clist/10}{clist/16}{clist/4}"
+  - val: "3{clist/10}{clist/16}{clist/8}{clist/4}{clist/2}"
+  - val: "4{clist/10}{clist/32}{clist/8}"
+  - val: "5{clist/10:1 1 1 1 1 1 1 0 0 0}{clist/32}{clist/16}{clist/2}"
+
+preamble:
+  - val: "{char:1 0}"
+  - val: "{char:1 0}{char:1 0}"
+  - val: "{char:1 0}{char:1 0}{char:1 0}{char:1 0}"
+  - val: "{char:1 0}{preamble}"
 
 str:
-  - val: "{char}"
-  - val: "{char}{char}"
-  - val: "{char}{char}{char}{char}"
-  - val: "{char}{str}"
+  - val: "{char:0}"
+  - val: "{char:0}{char:0}"
+  - val: "{char:0}{char:0}{char:0}{char:0}"
+  - val: "{char:0}{str}"
 
 color:
-  - val: "{hex}{hex}{hex}{hex}{hex}{hex}"
+  - val: "{hex}{csep}{hex}{csep}{hex}{csep}{hex}{csep}{hex}{csep}{hex}"
 
 clist/256:
   - val: "{clist/64}{clist/64}{clist/64}{clist/64}"
@@ -52,6 +94,18 @@ clist/2:
   - val: "{clist/1}{clist/1}"
 clist/1:
   - val: "{color}{space:1 1}"
+
+csep:
+  - val: ""
+    freq: d10
+  - val: "{csepchar}{csep}"
+csepchar:
+  - val: " "
+  - val: "\n"
+  - val: "\t"
+  - val: ","
+  - val: ";"
+  - val: "#"
 
 sep:
   - val: ":"
@@ -86,12 +140,16 @@ space:
   - val: "\n"
   - val: "\t"
   - val: ","
+  - val: "#"
+  - val: ";"
 # NOT ":"
 char:
+  - val: "{sep}{sep}"
+  - val: "\\{sep}"
   - val: "{hex}"
     freq: d22
   - val: "{space:0 0}"
-    freq: d4
+    freq: d6
   - val: g
   - val: h
   - val: i
@@ -137,7 +195,6 @@ char:
   - val: "~"
   - val: "!"
   - val: "@"
-  - val: "#"
   - val: "$"
   - val: "%"
   - val: "^"
@@ -156,8 +213,7 @@ char:
   - val: "|"
   - val: "["
   - val: "]"
-  - val: "\\"
-  - val: ";"
+  - val: "\\\\"
   - val: "<"
   - val: ">"
   - val: "?"
