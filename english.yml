@@ -19,31 +19,53 @@ VerbSuf:
     gloss: ".PresPart"
   - val: "7"
     gloss: ".PastPart"
-Verb/1:
-  - val: "{AuxVerbRoot}{VerbSuf:0 0 1 0 1 0 0 0}"
-  - val: "{VerbRoot}{VerbSuf:0 0 1 0 1 0 0 0}"
-Verb/s:
-  - val: "{AuxVerbRoot}{VerbSuf:0 1 0 0 1 0 0 0}"
-  - val: "{VerbRoot}{VerbSuf:0 1 0 0 1 0 0 0}"
-Verb/p:
-  - val: "{AuxVerbRoot}{VerbSuf:0 0 0 1 0 1 0 0}"
-  - val: "{VerbRoot}{VerbSuf:0 0 0 1 0 1 0 0}"
-Verb/inf:
-  - val: "{AuxVerbRoot}{VerbSuf:1 0 0 0 0 0 0 0}"
-  - val: "{VerbRoot}{VerbSuf:1 0 0 0 0 0 0 0}"
-Verb/part:
-  - val: "{AuxVerbRoot}{VerbSuf:0 0 0 0 0 0 1 0}"
-  - val: "{VerbRoot}{VerbSuf:0 0 0 0 0 0 1 0}"
+  - val: "r"
+    gloss: ".Agent"
+TransVerb/1:
+  - val: "{AuxVerbRoot}{VerbSuf!2 4}"
+  - val: "{TransVerbRoot}{VerbSuf!2 4}"
+TransVerb/s:
+  - val: "{AuxVerbRoot}{VerbSuf!1 4}"
+  - val: "{TransVerbRoot}{VerbSuf!1 4}"
+TransVerb/p:
+  - val: "{AuxVerbRoot}{VerbSuf!3 5}"
+  - val: "{TransVerbRoot}{VerbSuf!3 5}"
+TransVerb/inf:
+  - val: "{AuxVerbRoot}{VerbSuf!0}"
+  - val: "{TransVerbRoot}{VerbSuf!0}"
+TransVerb/part:
+  - val: "{AuxVerbRoot}{VerbSuf!6}"
+  - val: "{TransVerbRoot}{VerbSuf!6}"
+  - val: "{AuxVerbRoot}{VerbSuf!7}"
+  - val: "{TransVerbRoot}{VerbSuf!7}"
+IntrVerb/1:
+  - val: "{AuxVerbRoot}{VerbSuf!2 4}"
+  - val: "{IntrVerbRoot}{VerbSuf!2 4}"
+IntrVerb/s:
+  - val: "{AuxVerbRoot}{VerbSuf!1 4}"
+  - val: "{IntrVerbRoot}{VerbSuf!1 4}"
+IntrVerb/p:
+  - val: "{AuxVerbRoot}{VerbSuf!3 5}"
+  - val: "{IntrVerbRoot}{VerbSuf!3 5}"
+IntrVerb/inf:
+  - val: "{AuxVerbRoot}{VerbSuf!0}"
+  - val: "{IntrVerbRoot}{VerbSuf!0}"
+IntrVerb/part:
+  - val: "{AuxVerbRoot}{VerbSuf!6}"
+  - val: "{IntrVerbRoot}{VerbSuf!6}"
+  # - val: "{AuxVerbRoot}{VerbSuf!7}"
+  # - val: "{IntrVerbRoot}{VerbSuf!7}"
 CVerb/1:
-  - val: "{COP}{VerbSuf:0 0 1 0 1 0 0 0}"
+  - val: "{COP}{VerbSuf!2 4}"
 CVerb/s:
-  - val: "{COP}{VerbSuf:0 1 0 0 1 0 0 0}"
+  - val: "{COP}{VerbSuf!1 4}"
 CVerb/p:
-  - val: "{COP}{VerbSuf:0 0 0 1 0 1 0 0}"
+  - val: "{COP}{VerbSuf!3 5}"
 CVerb/inf:
-  - val: "{COP}{VerbSuf:1 0 0 0 0 0 0 0}"
+  - val: "{COP}{VerbSuf!0}"
 CVerb/part:
-  - val: "{COP}{VerbSuf:0 0 0 0 0 0 1 0}"
+  - val: "{COP}{VerbSuf!6}"
+  - val: "{COP}{VerbSuf!7}"
 
 Pronoun:
   - val: "NP1s"  # I/me
@@ -95,8 +117,8 @@ Sentence:
   - val: "{IClauses}{conj}{sp}{IndependentClause}{.}"
   - val: "{AuxQuestion}"
     freq: 0
-  - val: "{Verb/inf}{sp}{Object}{.}"
-  - val: "{Subject/2}{sp}{Verb/inf}{sp}{Object}{.}"
+  - val: "{TransVerb/inf}{sp}{Object}{.}"
+  - val: "{Subject/2}{sp}{TransVerb/inf}{sp}{Object}{.}"
   - val: "{ConditionalSentence}"
 IndependentClause:
   - val: "{Subject/1}{sp}{Predicate/1}"
@@ -111,15 +133,15 @@ ConditionalSentence:
   - val: "{if}{sp}{IClauses}{conj}{sp}{IndependentClause}{,}{sp}{then}{sp}{IndependentClause}{.}"
   - val: "{if}{sp}{IClauses}{conj}{sp}{IndependentClause}{,}{sp}{then}{sp}{IndependentClause}{?}"
 AuxQuestion:
-  - val: "{Verb/1:1 0}{sp}{Subject/1}{?}"
-  - val: "{Verb/1:1 0}{sp}{Subject/1}{sp}{Object}{?}"
-  - val: "{Verb/1:1 0}{sp}{Subject/1}{sp}{Verb/part}{sp}{Object}{?}"
-  - val: "{Verb/s:1 0}{sp}{Subject/s}{?}"
-  - val: "{Verb/s:1 0}{sp}{Subject/s}{sp}{Object}{?}"
-  - val: "{Verb/s:1 0}{sp}{Subject/s}{sp}{Verb/part}{sp}{Object}{?}"
-  - val: "{Verb/p:1 0}{sp}{Subject/p}{?}"
-  - val: "{Verb/p:1 0}{sp}{Subject/p}{sp}{Object}{?}"
-  - val: "{Verb/p:1 0}{sp}{Subject/p}{sp}{Verb/part}{sp}{Object}{?}"
+  - val: "{IntrVerb/1:1 0}{sp}{Subject/1}{?}"
+  - val: "{TransVerb/1:1 0}{sp}{Subject/1}{sp}{Object}{?}"
+  - val: "{TransVerb/1:1 0}{sp}{Subject/1}{sp}{TransVerb/part}{sp}{Object}{?}"
+  - val: "{IntrVerb/s:1 0}{sp}{Subject/s}{?}"
+  - val: "{TransVerb/s:1 0}{sp}{Subject/s}{sp}{Object}{?}"
+  - val: "{TransVerb/s:1 0}{sp}{Subject/s}{sp}{TransVerb/part}{sp}{Object}{?}"
+  - val: "{IntrVerb/p:1 0}{sp}{Subject/p}{?}"
+  - val: "{TransVerb/p:1 0}{sp}{Subject/p}{sp}{Object}{?}"
+  - val: "{TransVerb/p:1 0}{sp}{Subject/p}{sp}{TransVerb/part}{sp}{Object}{?}"
 
 .:
   - val: "."
@@ -156,7 +178,7 @@ not:
   - val: "~"
     gloss: "not "
 butnot:
-  - val: "{conj:0 1 0 0}{not}"
+  - val: "{conj!1}{not}"
 nconj:
   - val: "and"
     gloss: "and"
@@ -172,16 +194,16 @@ then:
     gloss: "then"
 
 Subject/1:
-  - val: "{Pronoun:1 0 0 0 0 0 0 0 0 0 0}S"
+  - val: "{Pronoun!0}S"
 Subject/2:
-  - val: "{Pronoun:0 0 1 1 0 0 0 0 0 0 0}S"
+  - val: "{Pronoun!2 3}S"
 Subject/s:
-  - val: "{Pronoun:0 0 0 0 1 1 1 1 0 1 0}S"
+  - val: "{Pronoun!4 5 6 7 9}S"
   - val: "{Noun/si}"
   - val: "{Noun/sd}"
   - val: "{DemPronoun/s}"
 Subject/p:
-  - val: "{Pronoun:0 1 1 1 0 0 0 0 1 0 1}S"
+  - val: "{Pronoun!1 2 3 8 10}S"
   - val: "{Noun/pi}"
   - val: "{Noun/pd}"
   - val: "{DemPronoun/p}"
@@ -195,39 +217,55 @@ Object:
     freq: 0
 
 Predicate/1:
-  - val: "{Verb/1}"
-  - val: "{Verb/1}{sp}{Object}"
+  - val: "{IntrVerb/1}"
+  - val: "{TransVerb/1}{sp}{Object}"
   - val: "{CVerb/1}{sp}{Adjective}-"
   - val: "{CVerb/1}{sp}{Adjective}>"
+    gloss: ".er"
   - val: "{CVerb/1}{sp}{Adjective}> than {Object}"
+    gloss: ".er than "
   - val: "{CVerb/1}{sp}{Det/d}{sp}{Adjective}]"
+    gloss: ".est"
   - val: "{not}{Predicate/1}"
     freq: d5
 Predicate/s:
-  - val: "{Verb/s}"
-  - val: "{Verb/s}{sp}{Object}"
+  - val: "{IntrVerb/s}"
+  - val: "{TransVerb/s}{sp}{Object}"
   - val: "{CVerb/s}{sp}{Adjective}-"
   - val: "{CVerb/s}{sp}{Adjective}>"
+    gloss: ".er"
   - val: "{CVerb/s}{sp}{Adjective}> than {Object}"
+    gloss: ".er than "
   - val: "{CVerb/s}{sp}{Det/d}{sp}{Adjective}]"
+    gloss: ".est"
   - val: "{not}{Predicate/s}"
     freq: d5
 Predicate/p:
-  - val: "{Verb/p}"
-  - val: "{Verb/p}{sp}{Object}"
+  - val: "{IntrVerb/p}"
+  - val: "{TransVerb/p}{sp}{Object}"
   - val: "{CVerb/p}{sp}{Adjective}-"
   - val: "{CVerb/p}{sp}{Adjective}>"
+    gloss: ".er"
   - val: "{CVerb/p}{sp}{Adjective}> than {Object}"
+    gloss: ".er than "
   - val: "{CVerb/p}{sp}{Det/d}{sp}{Adjective}]"
+    gloss: ".est"
   - val: "{not}{Predicate/p}"
     freq: d5
 
-VerbRoot:
+IntrVerbRoot:
+  - val: "V#201"
+    gloss: "sneeze"
+TransVerbRoot:
   - val: "{AuxVerbRoot}"
   - val: "V#101"
     gloss: "see"
   - val: "V#102"
     gloss: "poke"
+  - val: "V#103"
+    gloss: "buy"
+DiTransVerbRoot:
+  - val: "{TransVerbRoot!3}"
 AuxVerbRoot:
   - val: "{COP}"
   - val: "V#02"
@@ -235,6 +273,11 @@ AuxVerbRoot:
 COP:
   - val: "V#01"
     gloss: "be"
+RudeTransVerbRoot:
+  - val: "V#x1"
+    gloss: "fuck"
+  - val: "V#x2"
+    gloss: "damn"
 
 Noun/si:
   - val: "{Det/si}{sp}{NounRoot}s"
@@ -378,18 +421,30 @@ NounRoot:
     gloss: "fish"
   - val: "N#07"
     gloss: "deer"
+RudeNounRoot:
+  - val: "N#x1"
+    gloss: "fuck"
 
 AdjPhrase:
   - val: "{Adjective}-"
+    gloss: ""
   - val: "{Adjective}>"
+    gloss: ".er"
   - val: "{Adjective}]"
+    gloss: ".est"
+  - val: "{TransVerb/part}"
+  - val: "{IntrVerb/part}"
 AdjPhrase/d:
-  - val: "{AdjPhrase:1 0 0}"
-  - val: "{AdjPhrase:0 1 0}"
-  - val: "{AdjPhrase:0 0 1}"
+  - val: "{AdjPhrase:1 0 0 0 0}"
+  - val: "{AdjPhrase:0 1 0 0 0}"
+  - val: "{AdjPhrase:0 0 1 0 0}"
+  - val: "{AdjPhrase:0 0 0 1 0}"
+  - val: "{AdjPhrase:0 0 0 0 1}"
 AdjPhrase/i:
-  - val: "{AdjPhrase:1 0 0}"
-  - val: "{AdjPhrase:0 1 0}"
+  - val: "{AdjPhrase:1 0 0 0 0}"
+  - val: "{AdjPhrase:0 1 0 0 0}"
+  - val: "{AdjPhrase:0 0 0 1 0}"
+  - val: "{AdjPhrase:0 0 0 0 1}"
 
 Adjective:
   - val: "A#01"
@@ -418,19 +473,22 @@ replace:
         match:
           - ["0", "~V0"]
         '1': ["", "~V1"]
+        x: ["", "~Vx"]
       "~V0":
         match:
           - ["1", "~V01"]
           - ["2", "~V02"]
       "~V01":
-        '0': ["0 ~", S]
-        '1': ["1 ~", S]
-        '2': ["2 ~", S]
-        '3': ["3 ~", S]
-        '4': ["4 ~", S]
-        '5': ["5 ~", S]
-        '6': ["6 ~", S]
-        '7': ["7 ~", S]
+        # '0': ["0 ~", S]
+        # '1': ["1 ~", S]
+        # '2': ["2 ~", S]
+        # '3': ["3 ~", S]
+        # '4': ["4 ~", S]
+        # '5': ["5 ~", S]
+        # '6': ["6 ~", S]
+        # '7': ["7 ~", S]
+        set:
+          - ["01234567", "{} ~", S]
       "~V02":
         default: ["{} ~ V#020", S]
       "~V1":
@@ -463,6 +521,41 @@ replace:
         default: ["02{} ~ V#1080", S]
       "~V109":
         default: ["02{} ~ V#1090", S]
+      # Experimental:
+      "~V1(0)?":
+        set:
+          '0123456789': ["", "{S}{}"]
+      "~V10([1-9])":
+        default: ["02{} ~ V#10{S:\\1}0", S]
+      "~Vx":
+        '0': ["", "~Vx0"]
+        '1': ["", "~Vx1"]
+        '2': ["", "~Vx2"]
+        '3': ["", "~Vx3"]
+        '4': ["", "~Vx4"]
+        '5': ["", "~Vx5"]
+        '6': ["", "~Vx6"]
+        '7': ["", "~Vx7"]
+        '8': ["", "~Vx8"]
+        '9': ["", "~Vx9"]
+      "~Vx1":
+        default: ["02{} ~ V#x10", S]
+      "~Vx2":
+        default: ["02{} ~ V#x20", S]
+      "~Vx3":
+        default: ["02{} ~ V#x30", S]
+      "~Vx4":
+        default: ["02{} ~ V#x40", S]
+      "~Vx5":
+        default: ["02{} ~ V#x50", S]
+      "~Vx6":
+        default: ["02{} ~ V#x60", S]
+      "~Vx7":
+        default: ["02{} ~ V#x70", S]
+      "~Vx8":
+        default: ["02{} ~ V#x80", S]
+      "~Vx9":
+        default: ["02{} ~ V#x90", S]
       # Lexeme expansion
     - S:
         V: ["", V]
@@ -475,6 +568,8 @@ replace:
       V.:
         '0': ["", V0]
         '1': ["", V1]
+        '2': ["", V2]
+        x: ["", Vx]
         default: ["V#ERR", S]
       V0:
         '1': ["", V01]
@@ -506,6 +601,7 @@ replace:
       V10:
         '1': ["", V101]
         '2': ["", V102]
+        '3': ["", V103]
         default: ["V#10ERR", S]
       V101:
         '0': ["see", S]
@@ -527,6 +623,47 @@ replace:
         '6': ["poking", S]
         '7': ["poked", S]
         default: ["V#102ERR", S]
+      V103:
+        '0': ["buy", S]
+        '1': ["buys", S]
+        '2': ["buy", S]
+        '3': ["buy", S]
+        '4': ["bought", S]
+        '5': ["bought", S]
+        '6': ["buying", S]
+        '7': ["buying", S]
+        default: ["V#102ERR", S]
+      V2:
+        '0': ["", V20]
+        default: ["V#2ERR", S]
+      V20:
+        '1': ["", V201]
+        '2': ["", V202]
+        default: ["V#20ERR", S]
+      V201:
+        '0': ["sneeze", S]
+        '1': ["sneezes", S]
+        '2': ["sneeze", S]
+        '3': ["sneeze", S]
+        '4': ["sneezed", S]
+        '5': ["sneezed", S]
+        '6': ["sneezing", S]
+        '7': ["sneezed", S]
+        default: ["V#201ERR", S]
+      Vx:
+        '0': ["", Vx0]
+        '1': ["", Vx1]
+        default: ["V#x1ERR", S]
+      Vx1:
+        '0': ["fuck", S]
+        '1': ["fucks", S]
+        '2': ["fuck", S]
+        '3': ["fuck", S]
+        '4': ["fucked", S]
+        '5': ["fucked", S]
+        '6': ["fucking", S]
+        '7': ["fucked", S]
+        default: ["V#x1ERR", S]
       N:
         P: ["", Pro]
         "#": ["", N.]

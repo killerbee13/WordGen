@@ -7,7 +7,6 @@ import optparse
 import copy
 import collections
 import html
-from string import Formatter
 
 # import pdb
 
@@ -16,6 +15,7 @@ import yaml
 from tr import tr
 
 sep = re.compile('[^0-9.]*[^0-9.+*=]')
+sep2 = re.compile('[^0-9.:]*[^0-9.:]')
 aChar = re.compile('(.)')
 expansionCount = 0
 one = decimal.Decimal('1')
@@ -76,7 +76,7 @@ class Path:
 			"freq": (decimal.Decimal(Node.get("freq", one))/sumFreq)
 		}
 		rets = {"val": "", "ipa": "", "freq": one}
-		for i, s in enumerate(Formatter().parse(SNode["val"])):
+		for i, s in enumerate(refParse(SNode["val"])):
 			# Reference
 			if s[1]:
 				# Generate subword from subpath
@@ -119,7 +119,7 @@ class Path:
 			self._branch = path[0]
 			self._children = []
 			# Extract root for each child Path
-			for i, tnode in enumerate(Formatter().parse(
+			for i, tnode in enumerate(refParse(
 				Data[root][self._branch].get("val", "")
 			)):
 				if tnode[1]:
@@ -130,7 +130,7 @@ class Path:
 			self._branch = path[0]
 			self._children = []
 			# Extract root for each child Path
-			for i, tnode in enumerate(Formatter().parse(
+			for i, tnode in enumerate(refParse(
 				Data[root][self._branch].get("val", "")
 			)):
 				if tnode[1]:
@@ -163,7 +163,7 @@ class SwitchingGraph(collections.UserDict):
 
 			def extract(self, val):
 				ret = []
-				for s in Formatter().parse(val):
+				for s in refParse(val):
 					if s[0]:
 						ret.append(s[0])
 					if s[1]:
@@ -243,6 +243,92 @@ class RegexApplicator:
 			if N in data:
 				self.data[N] = data[N]
 
+def refParse(refstr):
+	"""Basically copy Formatter().parse() but treat ! differently:
+	Only one of : or ! is allowed to follow the refname, 
+	"""
+	lit = ""
+	name = None
+	flist = None
+	ilist = None
+	state = "lit"
+	for c in refstr:
+		# print((c,state))
+		if state == "lit":
+			if c == "{":
+				state = "{"
+			elif c == "}":
+				state = "}"
+			else:
+				lit += c
+		elif state == "{":
+			if c == "{":
+				lit += "{"
+				state = "lit"
+			elif c == "}":
+				name = ""
+				yield (lit,name,flist,ilist)
+				state = "lit"
+				lit = ""
+				name = None
+				flist = None
+				ilist = None
+			else:
+				state = "name"
+				name = c
+		elif state == "}":
+			if c == "}":
+				lit += "}"
+				state = "lit"
+			else:
+				raise ValueError("Single '}' encountered", refstr)
+		elif state == "name":
+			if c == ":":
+				state = "flist"
+				flist = ""
+			elif c == "!":
+				state = "ilist"
+				ilist = ""
+			elif c == "}":
+				yield (lit,name,flist,ilist)
+				state = "lit"
+				lit = ""
+				name = None
+				flist = None
+				ilist = None
+			elif c == "{":
+				raise ValueError("Extra '{' encountered", refstr)
+			else:
+				name += c
+		elif state == "flist":
+			if c == "}":
+				yield (lit,name,flist,ilist)
+				state = "lit"
+				lit = ""
+				name = None
+				flist = None
+				ilist = None
+			elif c == "{":
+				raise ValueError("Extra '{' encountered", refstr)
+			else:
+				flist += c
+		elif state == "ilist":
+			if c == "}":
+				yield (lit,name,flist,ilist)
+				state = "lit"
+				lit = ""
+				name = None
+				flist = None
+				ilist = None
+			elif c == "{":
+				raise ValueError("Extra '{' encountered", refstr)
+			else:
+				ilist += c
+	if state == "lit":
+		yield (lit,name,flist,ilist)
+	else:
+		raise ValueError("Unterminated reference", refstr)
+		
 
 def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 	"""Select a random value from the branches, recursing
@@ -309,9 +395,9 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 			return rets
 		# Determine which is a string and which is a reference
 		else:
-			for s in Formatter().parse(branches[stop]["val"]):
+			for s in refParse(branches[stop]["val"]):
 				# Recurse on reference and insert results into string
-
+				# print(s)
 				if s[0]:
 					rets["val"] = rets["val"] + s[0]
 					for ch in other_channels:
@@ -339,6 +425,18 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 							node[i]['freq'] = d
 							# nstr += ','+str(d)
 						# Data[nstr] = node
+					elif s[3]:
+						_ = re.match(sep2, s[3])
+						if _:
+							_ = _.end()
+						ilist = re.split(sep2, s[3][_:])
+						node2 = []
+						for i in ilist:
+							ival = i.split(":")
+							node2.append(node[int(ival[0])])
+							if len(ival) > 1:
+								node2[-1]['freq'] = decimal.Decimal(ival[1])
+						node = node2
 					# Throws a KeyError on invalid reference. Not caught
 					# because the Python default error message is good
 					# enough and there's nothing for the code to do with
@@ -370,11 +468,14 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → "):
 		def defaultPlaceholder(defStr, c):
 			# return aChar.sub(str, c)
 			out = ""
-			for t in Formatter().parse(defStr):
+			for t in refParse(defStr):
 				out += t[0]
 				if t[1] is not None:
 					out += c
 			return out
+
+		def matchesSet(set, c):
+			return True if tr(set, "", c, "cd") else False
 
 		def doMaps(maps, matches, c):
 			def doFSMMatch(map1, map2, c, S):
@@ -387,9 +488,8 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → "):
 				if m[0]:
 					return (m[1], m[2])
 			for match in matches:
-				m = doFSMMatch(match[0], match[0], c, match[1])
-				if m[0]:
-					return (m[1], m[2])
+				if matchesSet(match[0], c):
+					return (c, match[1])
 			return False
 
 		ret = [word]
@@ -409,6 +509,12 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → "):
 						cline += defaultPlaceholder(r[0], c)
 						if len(r) > 1:
 							state = r[1]
+					elif "set" in s:
+						for r in s["set"]:
+							if matchesSet(r[0], c):
+								cline += defaultPlaceholder(r[1], c)
+								if len(r) > 2:
+									state = r[2]
 					elif m:
 						cline += m[0]
 						if m[1]:
@@ -429,6 +535,8 @@ def applyRE(Data, word, keepHistory=False, KHSep=" → "):
 				if "reversed" in stage and stage["reversed"] & 2:
 					cline = cline[::-1]
 				ret.append(cline[:])
+			elif isinstance(stage, dict) and "repeat" in stage:
+				pass
 			elif isinstance(stage, list) and len(stage) > 0 and "m" in stage[0]:
 				for rule in stage:
 					if "c" in rule:
@@ -552,7 +660,7 @@ def listAllR(Data, node, depth, ignoreZeros, path=[], flist=None):
 					{"t": 'L', "val": '', "ipa": child.get("ipa", "")}
 				)
 			else:
-				for s in Formatter().parse(child["val"]):
+				for s in refParse(child["val"]):
 					# Recurse on reference and insert results into string
 					if s[1]:
 						nstr = s[1]
@@ -780,7 +888,7 @@ def followPath(Data, node, path):
 	}
 	rets = {"val": "", "ipa": "", "freq": one}
 	# print(SNode)
-	for i, s in enumerate(Formatter().parse(SNode["val"])):
+	for i, s in enumerate(refParse(SNode["val"])):
 		# Recurse on reference and insert results into string
 		if s[1]:
 			# Throws a KeyError on invalid reference. Not caught because
@@ -813,6 +921,8 @@ def toBNF(Data, StartDef):
 def main():
 	global expansionCount
 
+	# print(list(refParse("{} test")))
+	
 	# Enable shorthand for decimal numbers:
 	def dec_repr(dumper, data):
 		return dumper.represent_scalar(u'!d', 'd'+str(data))
@@ -983,12 +1093,16 @@ def main():
 				])
 				print(Header)
 				print('-'*40)
+		if list(refParse(args[1]))[0][1]:
+			Data[":arg"] = [{"val": args[1]}]
+		else:
+			Data[":arg"] = [{"val": "{"+args[1]+"}"}]
 		for _ in range(options.num):
 			word = applyRE(
 				Data,
 				chooseFrom(
 					Data,
-					Data[args[1]],
+					Data[":arg"],
 					-1*options.depth,
 					options.depth
 				),

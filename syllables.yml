@@ -167,6 +167,8 @@ replace:
         r: 'ɸ'
       - m: 'v'
         r: 'β'
+      - m: 'φ'
+        r: 'ɸ'
     - - m: ';;+'
         r: ';'
     - - m: '(i|e)%;%'
@@ -215,6 +217,8 @@ replace:
         e: [e,F]
         o: [o,B]
         ɵ: [ɵ, SS]
+        y: ["aɪ", F]
+        w: ["aʊ", B]
         Ü: [u,B]
         Ï: [i,F]
         Ö: [o,B]
@@ -237,6 +241,8 @@ replace:
         u: [u,B]
         ʊ: [ʊ,B]
         o: [o,B]
+        y: ["aɪ", F]
+        w: ["aʊ", B]
         Ü: [u,B]
         Ï: [u,B]
         Ö: [o,B]
@@ -258,6 +264,8 @@ replace:
         ɪ: [ɪ,F]
         e: [e,F]
         ɵ: [ɵ, BS]
+        y: ["aɪ", F]
+        w: ["aʊ", B]
         Ü: [i,F]
         Ï: [i,F]
         Ö: [e,F]
@@ -332,290 +340,358 @@ replace:
 ..: [{val: "=", ipa: ";"}]
 WB: [{val: " ", ipa: " ", gloss: " ", acc: " "}]
 
+Sentence:
+  - val: "{Sentence/VF}"
+  - val: "{Sentence/VI}"
+Sentence/VF:
+  - val: "{Verb}"
+  - val: "{Noun/SI}{WB}{Verb/SI}"
+  - val: "{Noun/SA}{WB}{Verb/SA}"
+  - val: "{Noun/SD}{WB}{Verb/SD}"
+  - val: "{Pronoun/1}{WB}{Verb/S1}"
+  - val: "{Pronoun/2}{WB}{Verb/S2}"
+  - val: "{Noun/AI}{WB}{Noun/SI}{WB}{Verb/AIPI}"
+  - val: "{Noun/AI}{WB}{Noun/SA}{WB}{Verb/AIPA}"
+  - val: "{Noun/AI}{WB}{Noun/SD}{WB}{Verb/AIPD}"
+  - val: "{Noun/AI}{WB}{Pronoun/1}{WB}{Verb/AIP1}"
+  - val: "{Noun/AI}{WB}{Pronoun/2}{WB}{Verb/AIP2}"
+  - val: "{Noun/AA}{WB}{Noun/SI}{WB}{Verb/AAPI}"
+  - val: "{Noun/AA}{WB}{Noun/SA}{WB}{Verb/AAPA}"
+  - val: "{Noun/AA}{WB}{Noun/SD}{WB}{Verb/AAPD}"
+  - val: "{Noun/AA}{WB}{Pronoun/1}{WB}{Verb/AAP1}"
+  - val: "{Noun/AA}{WB}{Pronoun/2}{WB}{Verb/AAP2}"
+  - val: "{Noun/AD}{WB}{Noun/SI}{WB}{Verb/ADPI}"
+  - val: "{Noun/AD}{WB}{Noun/SA}{WB}{Verb/ADPA}"
+  - val: "{Noun/AD}{WB}{Noun/SD}{WB}{Verb/ADPD}"
+  - val: "{Noun/AD}{WB}{Pronoun/1}{WB}{Verb/ADP1}"
+  - val: "{Noun/AD}{WB}{Pronoun/2}{WB}{Verb/ADP2}"
+  - val: "{Pronoun/1}{WB}{Noun/SI}{WB}{Verb/A1PI}"
+  - val: "{Pronoun/1}{WB}{Noun/SA}{WB}{Verb/A1PA}"
+  - val: "{Pronoun/1}{WB}{Noun/SD}{WB}{Verb/A1PD}"
+  - val: "{Pronoun/1}{WB}{Pronoun/1}{WB}{Verb/A1P1}"
+  - val: "{Pronoun/1}{WB}{Pronoun/2}{WB}{Verb/A1P2}"
+  - val: "{Pronoun/2}{WB}{Noun/SI}{WB}{Verb/A2PI}"
+  - val: "{Pronoun/2}{WB}{Noun/SA}{WB}{Verb/A2PA}"
+  - val: "{Pronoun/2}{WB}{Noun/SD}{WB}{Verb/A2PD}"
+  - val: "{Pronoun/2}{WB}{Pronoun/1}{WB}{Verb/A2P1}"
+  - val: "{Pronoun/2}{WB}{Pronoun/2}{WB}{Verb/A2P2}"
+Sentence/VI:
+  - val: "{Verb}"
+  - val: "{Verb/SI}{WB}{Noun/SI}"
+  - val: "{Verb/SA}{WB}{Noun/SA}"
+  - val: "{Verb/SD}{WB}{Noun/SD}"
+  - val: "{Verb/S1}{WB}{Pronoun/1}"
+  - val: "{Verb/S2}{WB}{Pronoun/2}"
+  - val: "{Verb/AIPI}{WB}{Noun/AI}{WB}{Noun/SI}"
+  - val: "{Verb/AIPA}{WB}{Noun/AI}{WB}{Noun/SA}"
+  - val: "{Verb/AIPD}{WB}{Noun/AI}{WB}{Noun/SD}"
+  - val: "{Verb/AIP1}{WB}{Noun/AI}{WB}{Pronoun/1}"
+  - val: "{Verb/AIP2}{WB}{Noun/AI}{WB}{Pronoun/1}"
+  - val: "{Verb/AAPI}{WB}{Noun/AA}{WB}{Noun/SI}"
+  - val: "{Verb/AAPA}{WB}{Noun/AA}{WB}{Noun/SA}"
+  - val: "{Verb/AAPD}{WB}{Noun/AA}{WB}{Noun/SD}"
+  - val: "{Verb/AAPD}{WB}{Noun/AA}{WB}{Pronoun/1}"
+  - val: "{Verb/AAPD}{WB}{Noun/AA}{WB}{Pronoun/2}"
+  - val: "{Verb/ADPI}{WB}{Noun/AD}{WB}{Noun/SI}"
+  - val: "{Verb/ADPA}{WB}{Noun/AD}{WB}{Noun/SA}"
+  - val: "{Verb/ADPD}{WB}{Noun/AD}{WB}{Noun/SD}"
+  - val: "{Verb/ADPD}{WB}{Noun/AD}{WB}{Pronoun/1}"
+  - val: "{Verb/ADPD}{WB}{Noun/AD}{WB}{Pronoun/2}"
+  - val: "{Verb/A1PI}{WB}{Pronoun/1}{WB}{Noun/SI}"
+  - val: "{Verb/A1PA}{WB}{Pronoun/1}{WB}{Noun/SA}"
+  - val: "{Verb/A1PD}{WB}{Pronoun/1}{WB}{Noun/SD}"
+  - val: "{Verb/A1PD}{WB}{Pronoun/1}{WB}{Pronoun/1}"
+  - val: "{Verb/A1PD}{WB}{Pronoun/1}{WB}{Pronoun/2}"
+  - val: "{Verb/A2PI}{WB}{Pronoun/2}{WB}{Noun/SI}"
+  - val: "{Verb/A2PA}{WB}{Pronoun/2}{WB}{Noun/SA}"
+  - val: "{Verb/A2PD}{WB}{Pronoun/2}{WB}{Noun/SD}"
+  - val: "{Verb/A2PD}{WB}{Pronoun/2}{WB}{Pronoun/1}"
+  - val: "{Verb/A2PD}{WB}{Pronoun/2}{WB}{Pronoun/2}"
+
+NounPhrase||:
+  - val: ""
+
 #--- Nouns ---#
 Noun:
   - val: "{NounStem:1 1.5 0 0}{Noun/Inf}{Noun/Case}"
+Noun/SI:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!0}{Noun/Case!0}"
+  - val: "{RootNoun!0}{Noun/Case!0}"
+    freq: d10
+  - val: "{Pronoun/3I}{Noun/Case!0}"
+    freq: d10
+Noun/SA:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!1}{Noun/Case!0}"
+  - val: "{RootNoun!1:6 2:4 3:1}{Noun/Case!0}"
+    freq: d10
+  - val: "{Pronoun/3A}{Noun/Case!0}"
+    freq: d10
+Noun/SD:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!2}{Noun/Case!0}"
+  - val: "{RootNoun!4}{Noun/Case!0}"
+    freq: d10
+  - val: "{Pronoun/3D}{Noun/Case!0}"
+    freq: d10
+Noun/AI:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!0}{Noun/Case!1}"
+  - val: "{RootNoun!0}{Noun/Case!1}"
+    freq: d10
+  - val: "{Pronoun/3I}{Noun/Case!1}"
+    freq: d10
+Noun/AA:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!1}{Noun/Case!1}"
+  - val: "{RootNoun!1:6 2:4 3:1}{Noun/Case!1}"
+    freq: d10
+  - val: "{Pronoun/3A}{Noun/Case!1}"
+    freq: d10
+Noun/AD:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf!2}{Noun/Case!1}"
+  - val: "{RootNoun!4}{Noun/Case!1}"
+    freq: d10
+  - val: "{Pronoun/3D}{Noun/Case!1}"
+    freq: d10
+Noun/X:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf}{Noun/Case:0 0}"
+  - val: "{RootNoun}{Noun/Case:0 0}"
+    freq: d10
+Noun/LOC:
+  - val: "{NounStem:1 1.5 0 0}{Noun/Inf}{Noun/Case:0 0}"
+  - val: "{RootNoun}{Noun/Case:0 0}"
+    freq: d10
+Noun/TEMP:
+  - val: "{Noun/Prep!1}{NounStem:1 1.5 0 0}{Noun/Inf!2}{Noun/Case:0 0}"
+  - val: "{Noun/Prep!1}{RootNoun!4}{Noun/Case:0 0}"
+    freq: d10
 NounStem:
   - val: "{NominalRoot}"
   - val: "{NounStem:1.5 0 1 0}{.}{NominalRoot}"
   - val: "{NounStem:1 0 0 0.75}{.}{NominalRoot}"
   - val: "{NounStem:1 0 0 0.25}{.}{NominalRoot}"
 NominalRoot:
-  - val: ";{Onset}{HiSVowel}"
-    freq: d2
-    gloss: "noun"
-    acc: H
-  - val: ";{Onset}{HiWVowel}{Coda}"
-    freq: d2
-    gloss: "noun"
-    acc: H
-  - val: ";{Onset}{HiWVowel}{..}{Onset}{LoSVowel}"
-    freq: d1
-    gloss: "noun"
-    acc: HL
-  - val: ";{Onset}{HiWVowel}{Coda}{..}{Onset}{LoSVowel}"
-    freq: d0.5
-    gloss: "noun"
-    acc: HL
-  - val: ";{Onset}{HiWVowel}{GemCons}{LoSVowel}"
-    freq: d2
-    gloss: "noun"
-    acc: HL
-  - val: ";{HiWVowel}{Coda}"
-    freq: d0.1
-    gloss: "noun"
-    acc: H
-  - val: ";{HiSVowel}"
-    freq: d0.05
-    gloss: "noun"
-    acc: H
+  - {val: ";{Onset}{HiSVowel}", gloss: "noun", acc: H, freq: d2}
+  - {val: ";{Onset}{HiWVowel}{Coda}", gloss: "noun", acc: H, freq: d2}
+  - {val: ";{Onset}{HiWVowel}{..}{Onset}{LoSVowel}", gloss: "noun", acc: HL, freq: d1}
+  - {val: ";{Onset}{HiWVowel}{Coda}{..}{Onset}{LoSVowel}", gloss: "noun", acc: HL, freq: d0.5}
+  - {val: ";{Onset}{HiWVowel}{GemCons}{LoSVowel}", gloss: "noun", acc: HL, freq: d2}
+  - {val: ";{HiWVowel}{Coda}", gloss: "noun", acc: H, freq: d0.1}
+  - {val: ";{HiSVowel}", gloss: "noun", acc: H, freq: d0.05}
 Noun/Inf:
-  - val: "{Noun/Inf/Gender}{Noun/Inf/Count}{Noun/Inf/Plural}"
-    ipa: ""
-    freq: d1
-Noun/Inf/Gender:
-  - val: "{Noun/Inf/Gender/I}"
+  - val: "{Noun/Inf/Gender/I}{Noun/Inf/Count}{Noun/Inf/Plural}"
     freq: d8
-  - val: "{Noun/Inf/Gender/A}"
+  - val: "{Noun/Inf/Gender/A}{Noun/Inf/Count}{Noun/Inf/Plural}"
     freq: d4.5
-  - val: "{Noun/Inf/Gender/D}"
+  - val: "{Noun/Inf/Gender/D}{Noun/Inf/Count}{Noun/Inf/Plural}"
     freq: d1
 Noun/Inf/Gender/I:
   - gloss: "[I]"
 Noun/Inf/Gender/A:
-  - val: "{.}sE"
-    ipa: "sE"
-    freq: d3
-    gloss: "A"
-    acc: L
-  - val: "{.}i"
-    ipa: "i"
-    freq: d1.5
-    gloss: "A;person"
-    acc: H
+  - {val: "{.}sE",  ipa: "sE",  gloss: "A",        acc: L, freq: d2}
+  - {val: "{.}i",   ipa: "i",   gloss: "A;person", acc: H}
+  - {val: "{.}pE",   ipa: "pE",   gloss: "def;person", acc: H}
 Noun/Inf/Gender/D:
-  - val: "{.}taṙ"
-    ipa: "taɚ"
-    freq: d0
-    gloss: "D;aspect"
-    acc: L
-  - val: "{.}tIf"
-    ipa: "tIɸ"
-    freq: d1
-    gloss: "D"
-    acc: L
+  - {val: "{.}tIf", ipa: "tIɸ", gloss: "D",        acc: L}
+  - {val: "{.}taṙ", ipa: "taɚ", gloss: "D;aspect", acc: L, freq: d0}
 Noun/Inf/Count:
-  - freq: d4
-  - val: "{.}mat"
-    acc: L
-    ipa: "mat"
-    gloss: "COLL"
-    acc: L
+  - freq: d6
+  - {val: "{.}mat", ipa: "mat", gloss: "COLL",     acc: L}
 Noun/Inf/Plural:
   - freq: d8
     # gloss: "[SG]"
-  - val: "{.}a"
-    ipa: "a"
-    gloss: "PL"
-    freq: d2
-    acc: L
-  - val: "{.}gW"
-    ipa: "gW"
-    gloss: "PCL"
-    acc: L
-  - val: "{.}skE"
-    ipa: "skE"
-    gloss: "PL"
-    acc: L
-  - val: "{.}vů"
-    ipa: "βɵ"
-    gloss: "COUNT"
-    freq: 0
-    acc: L
+  - {val: "{.}a",   ipa: "a",   gloss: "PL",       acc: L, freq: d2}
+  - {val: "{.}gW",  ipa: "gW",  gloss: "PCL",      acc: L}
+  - {val: "{.}skE", ipa: "skE", gloss: "PL",       acc: L}
+  - {val: "{.}vů",  ipa: "βɵ",  gloss: "COUNT",    acc: L, freq: 0}
 Noun/Case:
   - gloss: "[ABS]"
-  - gloss: "ERG"
-    val: "{.}kI"
-    ipa: "kI"
-    acc: L
-  - gloss: "DAT"
-    val: "{.}gU"
-    ipa: "gU"
-    acc: L
-  - gloss: "PEG"
-    val: "{.}ga"
-    ipa: "ga"
-    acc: L
-  - gloss: "NPT"
-    val: "{.}jI"
-    ipa: "jI"
-    acc: L
-  - gloss: "INS"
-    val: "{.}dU"
-    ipa: "dU"
-    acc: L
-  - gloss: "BEN"
-    val: "{.}da"
-    ipa: "da"
-    acc: L
-  - gloss: "CUZ"
-    val: "{.}sE"
-    ipa: "sE"
-    acc: L
-  - gloss: "INE"
-    val: "{.}tO"
-    ipa: "tO"
-    acc: L
-  - gloss: "SPE"
-    val: "{.}tW"
-    ipa: "tW"
-    acc: L
-  - gloss: "LOC"
-    val: "{.}Ě"
-    ipa: "Ě"
-    acc: L
-  - gloss: "ELA"
-    val: "{.}gŘ"
-    ipa: "Ř"
-    acc: L
-  - gloss: "ABL"
-    val: "{.}lĚ"
-    ipa: "lĚ"
-    acc: L
-  - gloss: "ILA"
-    val: "{.}čO"
-    ipa: "tʃO"
-    acc: L
-  - gloss: "LAT"
-    val: "{.}baṙ"
-    ipa: "baɚ"
-    acc: L
-  - gloss: "EVT"
-    val: "{.}dR"
-    ipa: "dR"
-    acc: L
-  - gloss: "VIA"
-    val: "{.}bǑ"
-    ipa: "bǑ"
-    acc: L
+  - {gloss: "ERG", val: "{.}kI",  ipa: "kI",  acc: L}
+  - {gloss: "DAT", val: "{.}gU",  ipa: "gU",  acc: L}
+  - {gloss: "PEG", val: "{.}ga",  ipa: "ga",  acc: L}
+  - {gloss: "NPT", val: "{.}jI",  ipa: "jI",  acc: L}
+  - {gloss: "INS", val: "{.}dU",  ipa: "dU",  acc: L}
+  - {gloss: "BEN", val: "{.}da",  ipa: "da",  acc: L}
+  - {gloss: "CUZ", val: "{.}sE",  ipa: "sE",  acc: L}
+  - {gloss: "INE", val: "{.}tO",  ipa: "tO",  acc: L}
+  - {gloss: "SPE", val: "{.}tW",  ipa: "tW",  acc: L}
+  - {gloss: "LOC", val: "{.}Ě",   ipa: "Ě",   acc: L}
+  - {gloss: "ELA", val: "{.}gŘ",  ipa: "Ř",   acc: L}
+  - {gloss: "ABL", val: "{.}lĚ",  ipa: "lĚ",  acc: L}
+  - {gloss: "ILA", val: "{.}čO",  ipa: "tʃO", acc: L}
+  - {gloss: "LAT", val: "{.}baṙ", ipa: "baɚ", acc: L}
+  - {gloss: "EVT", val: "{.}dR",  ipa: "dR",  acc: L}
+  - {gloss: "VIA", val: "{.}bǑ",  ipa: "bǑ",  acc: L}
 Noun/Prep:
-  - val: "ko{WB}"
-    ipa: "ko"
-    gloss: "POSS"
-    acc: "H"
-  - val: "le{WB}"
-    ipa: "le"
-    gloss: "TEMP"
-    acc: "H"
+  - {val: "ko{WB}", ipa: "ko", gloss: "POSS", acc: H}
+  - {val: "le{WB}", ipa: "le", gloss: "TEMP", acc: H}
+RootNoun:
+  - val: "{RootNoun/I}{Noun/Inf/Gender/I}"
+    freq: d10
+  - val: "{RootNoun/A}{Noun/Inf/Gender/A!0}"
+    freq: d6
+  - val: "{RootNoun/p}{Noun/Inf/Gender/A!1}"
+    freq: d4
+  - val: "{RootNoun/name}{Noun/Inf/Gender/A!2}"
+    freq: d1
+  - val: "{RootNoun/D}{Noun/Inf/Gender/D}"
+    freq: d10
+Pronoun/1: [{val: "{Pronoun!0 1}{Noun/Inf/Count:12}{Noun/Inf/Plural}"}]
+Pronoun/2: [{val: "{Pronoun!2 3}{Noun/Inf/Count:12}{Noun/Inf/Plural}"}]
+Pronoun/3I: [{val: "{Pronoun!4}{Noun/Inf/Count:8}{Noun/Inf/Plural}"}]
+Pronoun/3A: [{val: "{Pronoun!5}{Noun/Inf/Count:8}{Noun/Inf/Plural}"}]
+Pronoun/3D: [{val: "{Pronoun!6}{Noun/Inf/Count:8}{Noun/Inf/Plural}"}]
+Pronoun:
+  - {val: "fai", ipa: "φy",  gloss: "1pI", acc: H}
+  - {val: "dao", ipa: "dw",  gloss: "1pX", acc: H}
+  - {val: "go",  ipa: "go",  gloss: "2pT", acc: H}
+  - {val: "pav", ipa: "pav", gloss: "2pV", acc: H}
+  - {val: "fol", ipa: "φol", gloss: "3pI", acc: H}
+  - {val: "sůṙ", ipa: "sɵɚ", gloss: "3pA", acc: H}
+  - {val: "ail", ipa: "yl",  gloss: "3pD", acc: H}
+RootNoun/I:
+  - {val: "ed",    ipa: "ed",    gloss: "black",      acc: H}
+  - {val: "aon",   ipa: "wn",    gloss: "hand",       acc: H}
+  - {val: "ailhaotnůṙ", ipa: "yl;hWt;nṘ", gloss: "essense-world-family", acc: HLL}
+  - {val: "pit",   ipa: "pit",   gloss: "shadow",     acc: H}
+  - {val: "pil",   ipa: "pil",   gloss: "grey",       acc: H}
+RootNoun/A:
+  - {val: "ika",   ipa: "i;ka",   gloss: "couple",     acc: HL}
+  - {val: "ůṙf",   ipa: "ɵɚɸ",   gloss: "adolescent", acc: H}
+  - {val: "paṙv",  ipa: "paɚv",  gloss: "tree",       acc: H}
+RootNoun/p:
+  - {val: "rosp",  ipa: "ʀosp",  gloss: "friend",     acc: H}
+  - {val: "bad", ipa: "bad", gloss: "father", acc: H}
+RootNoun/name:
+  - {val: "bada", ipa: "ba;da", gloss: "dad", acc: H}
+RootNoun/D:
+  - {val: "ala",   ipa: "a;la",   gloss: "peace",      acc: HL}
+  - {val: "baske", ipa: "ba;ske", gloss: "word",       acc: H}
+  - {val: "ailis", ipa: "yl;is", gloss: "essense-spirit", acc: HL}
 
 #--- Verbs ---#
 Verb:
-  - val: "{Verb/Voice:4 1 0 0 0}{VerbStem:1 0 0 0}{Verb/Agreements:1 0 0}"
-  - val: "{Verb/Voice:0 1 0 0 0}{VerbStem:0 0 1 0}{Verb/Agreements:1 0 0}"
-  - val: "{Verb/Voice:0 0 1 0 0}{VerbStem:0 1 1 0}{Verb/Agreements:1 0 0}"
+  - val: "{Verb/Voice!0:4 1}{VerbStem!0}"
+  - val: "{Verb/Voice!1}{VerbStem!2}"
+  - val: "{Verb/Voice!2}{VerbStem!1 2}"
     freq: d.5
-  - val: "{VerbStem:0 1 0 0}{Verb/Agreements:0 1 0}"
-  - val: "{VerbStem:1 1 1 1}{Verb/Agreements:0 0 1}"
-  - val: "{Verb/Voice:0 0 0 0 1}{VerbStem:1 1 1 0}{Verb/Agreements:0 0 1}"
-    freq: d.3
-  - val: "{Verb/Voice:0 1 0 0 0}{Verb/Voice:0 0 0 0 1}{VerbStem:1 0 1 0}{Verb/Agreements:1 0 0}"
+  - val: "{Verb/Voice!1}{Verb/Voice!4}{VerbStem!0 2}"
     freq: d.1
-  - val: "{Verb/Voice:0 0 1 0 0}{Verb/Voice:0 0 0 0 1}{VerbStem:0 1 1 0}{Verb/Agreements:1 0 0}"
+  - val: "{Verb/Voice!2}{Verb/Voice!4}{VerbStem!1 2}"
     freq: d.1
-  - val: "{Verb/Voice:4 1 0 0 0}{Verb/Voice:0 0 0 1 0}{VerbStem:0 0 0 1}{Verb/Agreements:1 0 0}"
+  - val: "{Verb/Voice!0:4 1}{Verb/Voice!3}{VerbStem!3}"
     freq: d.2
-  - val: "{Verb/Voice:4 0 0 0 1}{Verb/Voice:0 0 0 1 0}{VerbStem:0 0 0 1}{Verb/Agreements:0 0 1}"
-    freq: d.1
-  - val: "{Verb/Voice:0 1 0 0 0}{Verb/Voice:0 0 0 0 1}{Verb/Voice:0 0 0 1 0}{VerbStem:0 0 0 1}{Verb/Agreements:1 0 0}"
+  - val: "{Verb/Voice!1}{Verb/Voice!4}{Verb/Voice!3}{VerbStem!3}"
     freq: d.01
+  - val: "{VerbStem!1}"
+Verb/AP:
+  - val: "{VerbStem!0 1 2 3}"
+  - val: "{Verb/Voice!4}{VerbStem!0 1 2}"
+    freq: d.3
+  - val: "{Verb/Voice!0:4 4}{Verb/Voice!3}{VerbStem!3}"
+    freq: d.1
+Verb/SI: 
+  - {val: "{Verb!0 1 2 3 4}{Verb/Agreements/AI}"}
+  - {val: "{Verb!5}{Verb/Agreements/PI}"}
+Verb/SA:
+  - {val: "{Verb!0 1 2 3 4}{Verb/Agreements/AA}"}
+  - {val: "{Verb!5}{Verb/Agreements/PA}"}
+Verb/SD:
+  - {val: "{Verb!0 1 2 3 4}{Verb/Agreements/AD}"}
+  - {val: "{Verb!5}{Verb/Agreements/PD}"}
+Verb/S1:
+  - {val: "{Verb!0 1 2 3 4}{Verb/Agreements/A1}"}
+  - {val: "{Verb!5}{Verb/Agreements/P1}"}
+Verb/S2:
+  - {val: "{Verb!0 1 2 3 4}{Verb/Agreements/A2}"}
+  - {val: "{Verb!5}{Verb/Agreements/P2}"}
+Verb/AIPI: [{val: "{Verb/AP}{Verb/Agreements/AI}{Verb/Agreements/PI}"}]
+Verb/AIPA: [{val: "{Verb/AP}{Verb/Agreements/AI}{Verb/Agreements/PA}"}]
+Verb/AIPD: [{val: "{Verb/AP}{Verb/Agreements/AI}{Verb/Agreements/PD}"}]
+Verb/AIP1: [{val: "{Verb/AP}{Verb/Agreements/AI}{Verb/Agreements/P1}"}]
+Verb/AIP2: [{val: "{Verb/AP}{Verb/Agreements/AI}{Verb/Agreements/P2}"}]
+Verb/AAPI: [{val: "{Verb/AP}{Verb/Agreements/AA}{Verb/Agreements/PI}"}]
+Verb/AAPA: [{val: "{Verb/AP}{Verb/Agreements/AA}{Verb/Agreements/PA}"}]
+Verb/AAPD: [{val: "{Verb/AP}{Verb/Agreements/AA}{Verb/Agreements/PD}"}]
+Verb/AAP1: [{val: "{Verb/AP}{Verb/Agreements/AA}{Verb/Agreements/P1}"}]
+Verb/AAP2: [{val: "{Verb/AP}{Verb/Agreements/AA}{Verb/Agreements/P2}"}]
+Verb/ADPI: [{val: "{Verb/AP}{Verb/Agreements/AD}{Verb/Agreements/PI}"}]
+Verb/ADPA: [{val: "{Verb/AP}{Verb/Agreements/AD}{Verb/Agreements/PA}"}]
+Verb/ADPD: [{val: "{Verb/AP}{Verb/Agreements/AD}{Verb/Agreements/PD}"}]
+Verb/ADP1: [{val: "{Verb/AP}{Verb/Agreements/AD}{Verb/Agreements/P1}"}]
+Verb/ADP2: [{val: "{Verb/AP}{Verb/Agreements/AD}{Verb/Agreements/P2}"}]
+Verb/A1PI: [{val: "{Verb/AP}{Verb/Agreements/A1}{Verb/Agreements/PI}"}]
+Verb/A1PA: [{val: "{Verb/AP}{Verb/Agreements/A1}{Verb/Agreements/PA}"}]
+Verb/A1PD: [{val: "{Verb/AP}{Verb/Agreements/A1}{Verb/Agreements/PD}"}]
+Verb/A1P1: [{val: "{Verb/AP}{Verb/Agreements/A1}{Verb/Agreements/P1}"}]
+Verb/A1P2: [{val: "{Verb/AP}{Verb/Agreements/A1}{Verb/Agreements/P2}"}]
+Verb/A2PI: [{val: "{Verb/AP}{Verb/Agreements/A2}{Verb/Agreements/PI}"}]
+Verb/A2PA: [{val: "{Verb/AP}{Verb/Agreements/A2}{Verb/Agreements/PA}"}]
+Verb/A2PD: [{val: "{Verb/AP}{Verb/Agreements/A2}{Verb/Agreements/PD}"}]
+Verb/A2P1: [{val: "{Verb/AP}{Verb/Agreements/A2}{Verb/Agreements/P1}"}]
+Verb/A2P2: [{val: "{Verb/AP}{Verb/Agreements/A2}{Verb/Agreements/P2}"}]
 VerbStem:
   - val: "{Verb/TAp}{VerbalRoot/A}{Verb/M:4 1 1 1 1 1}{Verb/Ab}"
-    freq: 29
+    freq: d29
   - val: "{Verb/TAp}{VerbalRoot/P}{Verb/M:4 1 1 1 1 1}{Verb/Ab}"
-    freq: 14
+    freq: d14
   - val: "{Verb/TAp}{VerbalRoot/2}{Verb/M:4 1 1 1 1 1}{Verb/Ab}"
-    freq: 6
+    freq: d6
   - val: "{Verb/TAp}{VerbalRoot/G}{Verb/M:4 1 1 1 1 1}{Verb/Ab}"
-    freq: 2
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:1 0 0 0 0 0}{Verb/Ab}"
-    # freq: 4
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:0 1 0 0 0 0}{Verb/Ab}"
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:0 0 1 0 0 0}{Verb/Ab}"
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:0 0 0 1 0 0}{Verb/Ab}"
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:0 0 0 0 1 0}{Verb/Ab}"
-  # - val: "{Verb/TAp}{VerbalRoot}{Verb/M:0 0 0 0 0 1}{Verb/Ab}"
+    freq: d2
 Verb/TAp:
   - val: "{Verb/TAp/T}{Verb/TAp/Ap}"
-    freq: 4
+    freq: d4
 Verb/TAp/T:
-  - val: "si%{.}"
-    ipa: "si%"
-    gloss: "DP"
-    acc: "p"
-  - val: "ze%{.}"
-    ipa: "ze%"
-    gloss: "PP"
-    acc: "p"
+  - {val: "si%{.}", ipa: "si%", gloss: "DP", acc: "p"}
+  - {val: "ze%{.}", ipa: "ze%", gloss: "PP", acc: "p"}
   - gloss: "[C]"
-  - val: "bi%{.}"
-    ipa: "bi%"
-    gloss: "F"
-    acc: "p"
+  - {val: "bi%{.}", ipa: "bi%", gloss: "F", acc: "p"}
 Verb/TAp/Ap:
-  - val: "%gů{.}"
-    ipa: "%gɵ"
-    gloss: "CONT"
-    acc: "p"
-  - val: "%ků{.}"
-    ipa: "%kɵ"
-    gloss: "HAB"
-    acc: "p"
+  - {val: "%gů{.}", ipa: "%gɵ", gloss: "CONT", acc: "p"}
+  - {val: "%ků{.}", ipa: "%kɵ", gloss: "HAB", acc: "p"}
   - gloss: "[PFV]"
 Verb/M:
   # -a
-  - val: "\ue001"
-    ipa: "\ue001"
-    gloss: "[IND]"
-    acc: L
+  - {val: "\ue001", ipa: "\ue001", gloss: "[IND]", acc: L}
   # -am
-  - val: "\ue001m"
-    ipa: "\ue001m"
-    gloss: ":IMP"
-    acc: L
+  - {val: "\ue001m", ipa: "\ue001m", gloss: ":IMP", acc: L}
   # -fu/-afu
-  - val: "fu"
-    ipa: "ɸu"
-    gloss: ":COND"
-    acc: H
+  - {val: "fu", ipa: "ɸu", gloss: ":COND", acc: H}
   # -W/-U
-  - val: "\ue002"
-    ipa: "\ue002"
-    gloss: ":SBJ"
-    acc: L
+  - {val: "\ue002", ipa: "\ue002", gloss: ":SBJ", acc: L}
   # -adesk/-esk
-  - val: "\ue004"
-    ipa: "\ue004"
-    gloss: ":DISS"
-    acc: H
+  - {val: "\ue004", ipa: "\ue004", gloss: ":DISS", acc: H}
   # -aṙ/-Ṙ
-  - val: "\ue003"
-    ipa: "\ue003"
-    gloss: ":SPEC"
-    acc: L
+  - {val: "\ue003", ipa: "\ue003", gloss: ":SPEC", acc: L}
 Verb/Ab:
   - val: ""
     freq: 4
-  - val: "{.}lÜ"
-    ipa: "lÜ"
-    gloss: "INC"
-    acc: H
-  - val: "{.}rÖ"
-    ipa: "ʀÖ"
-    gloss: "TERM"
-    acc: H
-Verb/Agreements:
-  - val: "{.}{Verb/Agreements/Agent}"
-  - val: "{.}{Verb/Agreements/Patient}"
+  - {val: "{.}lÜ", ipa: "lÜ", gloss: "INC", acc: H}
+  - {val: "{.}rÖ", ipa: "ʀÖ", gloss: "TERM", acc: H}
+Verb/Agreements/SI:
+  - val: "{Verb/Agreements/AI}"
+  - val: "{Verb/Agreements/PI}"
+Verb/Agreements/AI: [{val: "{.}{Verb/Agreements/Agent!4}"}]
+Verb/Agreements/PI: [{val: "{.}{Verb/Agreements/Patient!4}"}]
+Verb/Agreements/SA:
+  - val: "{Verb/Agreements/AA}"
+  - val: "{Verb/Agreements/PA}"
+Verb/Agreements/AA: [{val: "{.}{Verb/Agreements/Agent!3}"}]
+Verb/Agreements/PA: [{val: "{.}{Verb/Agreements/Patient!3}"}]
+Verb/Agreements/S1:
+  - val: "{Verb/Agreements/A1}"
+  - val: "{Verb/Agreements/P1}"
+Verb/Agreements/A1: [{val: "{.}{Verb/Agreements/Agent!0 1}"}]
+Verb/Agreements/P1: [{val: "{.}{Verb/Agreements/Patient!0 1}"}]
+Verb/Agreements/S2:
+  - val: "{Verb/Agreements/A2}"
+  - val: "{Verb/Agreements/P2}"
+Verb/Agreements/A2: [{val: "{.}{Verb/Agreements/Agent!2}"}]
+Verb/Agreements/P2: [{val: "{.}{Verb/Agreements/Patient!2}"}]
+Verb/Agreements/SD:
+  - val: "{Verb/Agreements/AD}"
+  - val: "{Verb/Agreements/PD}"
+Verb/Agreements/AD: [{val: "{.}{Verb/Agreements/Agent!5}"}]
+Verb/Agreements/PD: [{val: "{.}{Verb/Agreements/Patient!5}"}]
+Verb/Agreements/AP:
   - val: "{.}{Verb/Agreements/Agent}{.}{Verb/Agreements/Patient}"
 Verb/Agreements/Agent:
   - {val: "sI", ipa: "sI", gloss: "A1pI", acc: L}
@@ -633,310 +709,75 @@ Verb/Agreements/Patient:
   - {val: "dI", ipa: "dI", gloss: "P3pD", acc: L}
 Verb/Voice:
   - val: ""
-  - val: "nad{WB}"
-    ipa: "nad"
-    gloss: "PSV"
-    acc: "H"
-  - val: "nům{WB}"
-    ipa: "nɵm"
-    gloss: "APV"
-    acc: "H"
-  - val: "půt{WB}"
-    ipa: "pɵt"
-    gloss: "DPV"
-    acc: "H"
-  - val: "sas{WB}"
-    ipa: "sas"
-    gloss: "RCP"
-    acc: "H"
+  - {val: "nad{WB}", ipa: "nad", gloss: "PSV", acc: "H"}
+  - {val: "nům{WB}", ipa: "nɵm", gloss: "APV", acc: "H"}
+  - {val: "půt{WB}", ipa: "pɵt", gloss: "DPV", acc: "H"}
+  - {val: "sas{WB}", ipa: "sas", gloss: "RCP", acc: "H"}
 VerbalRoot/A:
   - val: "{VerbalRoot}"
-  - val: "{NominalRoot}{.}ta"
-    ipa: "ta"
-    gloss: "COP"
-    acc: H
-    freq: d100
-  - val: "pisk"
-    ipa: "pisk"
-    gloss: "swim"
-    acc: H
-    freq: d100
-  - val: "petla"
-    ipa: "petla"
-    gloss: "grasp"
-    acc: H
-    freq: d100
-  - val: "poṙdda"
-    ipa: "poɚdːa"
-    gloss: "grasp"
-    acc: H
-    freq: d100
-  - val: "kog"
-    ipa: "kog"
-    gloss: "push"
-    acc: H
-    freq: d100
-  - val: "kaotta"
-    ipa: "kaʊtːa"
-    gloss: "travel"
-    acc: H
-    freq: d100
-  - val: "kor"
-    ipa: "koɚ"
-    gloss: "govern"
-    acc: H
-    freq: d100
-  - val: "tůta"
-    ipa: "tɵta"
-    gloss: "touch"
-    acc: H
-    freq: d100
-  - val: "tilla"
-    ipa: "tilːa"
-    gloss: "speak"
-    acc: H
-    freq: d100
-  - val: "tozza"
-    ipa: "tozːa"
-    gloss: "love"
-    acc: H
-    freq: d100
-  - val: "toṙs"
-    ipa: "toɚs"
-    gloss: "shout"
-    acc: H
-    freq: d100
-  - val: "čessa"
-    ipa: "tʃesːa"
-    gloss: "shout"
-    acc: H
-    freq: d100
-  - val: "sikka"
-    ipa: "sikːa"
-    gloss: "pray"
-    acc: H
-    freq: d100
-  - val: "sam"
-    ipa: "sam"
-    gloss: "look"
-    acc: H
-    freq: d100
-  - val: "sun"
-    ipa: "sun"
-    gloss: "have"
-    acc: H
-    freq: d100
-  - val: "saosa"
-    ipa: "saʊsa"
-    gloss: "count"
-    acc: H
-    freq: d100
-  - val: "span"
-    ipa: "span"
-    gloss: "walk"
-    acc: H
-    freq: d100
-  - val: "skomma"
-    ipa: "skomːa"
-    gloss: "think"
-    acc: H
-    freq: d100
-  - val: "stem"
-    ipa: "setm"
-    gloss: "work"
-    acc: H
-    freq: d100
-  - val: "slanna"
-    ipa: "slanːa"
-    gloss: "sing"
-    acc: H
-    freq: d100
-  - val: "zamma"
-    ipa: "zamːa"
-    gloss: "come"
-    acc: H
-    freq: d100
-  - val: "fos"
-    ipa: "ɸos"
-    gloss: "help"
-    acc: H
-    freq: d100
-  - val: "fuskba"
-    ipa: "ɸuskba"
-    gloss: "write"
-    acc: H
-    freq: d100
-  - val: "vůmma"
-    ipa: "βɵmːa"
-    gloss: "create"
-    acc: H
-    freq: d100
-  - val: "jot"
-    ipa: "dʒot"
-    gloss: "run"
-    acc: H
-    freq: d100
-  - val: "nassa"
-    ipa: "nasːa"
-    gloss: "play"
-    acc: H
-    freq: d100
-  - val: "lusk"
-    ipa: "lusk"
-    gloss: "blow"
-    acc: H
-    freq: d100
-  - val: "hisppa"
-    ipa: "hispːa"
-    gloss: "find"
-    acc: H
-    freq: d100
-  - val: "hasta"
-    ipa: "hasta"
-    gloss: "go"
-    acc: H
-    freq: d100
-  - val: "han"
-    ipa: "han"
-    gloss: "speak"
-    acc: H
-    freq: d100
+  - {val: "{NominalRoot}{.}ta", ipa: "ta", gloss: "COP", acc: H}
+  - {val: "pisk",    ipa: "pisk",   gloss: "swim",      acc: H}
+  - {val: "petla",   ipa: "pet;la",  gloss: "grasp",     acc: H}
+  - {val: "poṙdda",  ipa: "poɚdːa", gloss: "grasp",     acc: H}
+  - {val: "kog",     ipa: "kog",    gloss: "push",      acc: H}
+  - {val: "kaotta",  ipa: "kaʊtːa", gloss: "travel",    acc: H}
+  - {val: "kor",     ipa: "koɚ",    gloss: "govern",    acc: H}
+  - {val: "tůta",    ipa: "tɵ;ta",   gloss: "touch",     acc: H}
+  - {val: "tilla",   ipa: "tilːa",  gloss: "speak",     acc: H}
+  - {val: "tozza",   ipa: "tozːa",  gloss: "love",      acc: H}
+  - {val: "toṙs",    ipa: "toɚs",   gloss: "shout",     acc: H}
+  - {val: "čessa",   ipa: "tʃesːa", gloss: "shout",     acc: H}
+  - {val: "sikka",   ipa: "sikːa",  gloss: "pray",      acc: H}
+  - {val: "sam",     ipa: "sam",    gloss: "look",      acc: H}
+  - {val: "sun",     ipa: "sun",    gloss: "have",      acc: H}
+  - {val: "saosa",   ipa: "saʊ;sa",  gloss: "count",     acc: H}
+  - {val: "span",    ipa: "span",   gloss: "walk",      acc: H}
+  - {val: "skomma",  ipa: "skomːa", gloss: "think",     acc: H}
+  - {val: "stem",    ipa: "stem",   gloss: "work",      acc: H}
+  - {val: "slanna",  ipa: "slanːa", gloss: "sing",      acc: H}
+  - {val: "zamma",   ipa: "zamːa",  gloss: "come",      acc: H}
+  - {val: "fos",     ipa: "ɸos",    gloss: "help",      acc: H}
+  - {val: "fuskba",  ipa: "ɸusk;ba", gloss: "write",     acc: H}
+  - {val: "vůmma",   ipa: "βɵmːa",  gloss: "create",    acc: H}
+  - {val: "jot",     ipa: "dʒot",   gloss: "run",       acc: H}
+  - {val: "nassa",   ipa: "nasːa",  gloss: "play",      acc: H}
+  - {val: "lusk",    ipa: "lusk",   gloss: "blow",      acc: H}
+  - {val: "hisppa",  ipa: "hispːa", gloss: "find",      acc: H}
+  - {val: "hasta",   ipa: "ha;sta",  gloss: "go",        acc: H}
+  - {val: "han",     ipa: "han",    gloss: "speak",     acc: H}
 VerbalRoot/P:
   - val: "{VerbalRoot}"
-  - val: "pitta"
-    ipa: "pitːa"
-    gloss: "feel_pain"
-    acc: H
-    freq: d100
-  - val: "gůl"
-    ipa: "gɵl"
-    gloss: "mark"
-    acc: H
-    freq: d100
-  - val: "čud"
-    ipa: "tʃud"
-    gloss: "shine"
-    acc: H
-    freq: d100
-  - val: "čuča"
-    ipa: "tʃutʃa"
-    gloss: "sneeze"
-    acc: H
-    freq: d100
-  - val: "čunna"
-    ipa: "tʃunːa"
-    gloss: "birth"
-    acc: H
-    freq: d100
-  - val: "sůgga"
-    ipa: "sɵgːa"
-    gloss: "be_sick"
-    acc: H
-    freq: d100
-  - val: "saiga"
-    ipa: "saɪga"
-    gloss: "wrap"
-    acc: H
-    freq: d100
-  - val: "skoṙffa"
-    ipa: "skoɚɸːa"
-    gloss: "overdo_farewell"
-    acc: H
-    freq: d100
-  - val: "zaim"
-    ipa: "zaɪm"
-    gloss: "turn"
-    acc: H
-    freq: d100
-  - val: "fama"
-    ipa: "ɸama"
-    gloss: "sleep"
-    acc: H
-    freq: d100
-  - val: "vosta"
-    ipa: "βosta"
-    gloss: "lose"
-    acc: H
-    freq: d100
-  - val: "volla"
-    ipa: "βolːa"
-    gloss: "change"
-    acc: H
-    freq: d100
-  - val: "jakka"
-    ipa: "dʒakːa"
-    gloss: "fall"
-    acc: H
-    freq: d100
-  - val: "lůtta"
-    ipa: "lɵtːa"
-    gloss: "remove"
-    acc: H
-    freq: d100
+  - {val: "pitta",   ipa: "pitːa",  gloss: "feel_pain", acc: H}
+  - {val: "gůl",     ipa: "gɵl",    gloss: "mark",      acc: H}
+  - {val: "čud",     ipa: "tʃud",   gloss: "shine",     acc: H}
+  - {val: "čuča",    ipa: "tʃu;tʃa", gloss: "sneeze",    acc: H}
+  - {val: "čunna",   ipa: "tʃunːa", gloss: "birth",     acc: H}
+  - {val: "sůgga",   ipa: "sɵgːa",  gloss: "be_sick",   acc: H}
+  - {val: "saiga",   ipa: "saɪ;ga",  gloss: "wrap",      acc: H}
+  - {val: "skoṙffa", ipa: "skoɚɸːa", gloss: "overdo_farewell", acc: H}
+  - {val: "zaim",    ipa: "zaɪm",   gloss: "turn",      acc: H}
+  - {val: "fama",    ipa: "ɸama",   gloss: "sleep",     acc: H}
+  - {val: "vosta",   ipa: "βo;sta",  gloss: "lose",      acc: H}
+  - {val: "volla",   ipa: "βolːa",  gloss: "change",    acc: H}
+  - {val: "jakka",   ipa: "dʒakːa", gloss: "fall",      acc: H}
+  - {val: "lůtta",   ipa: "lɵtːa",  gloss: "remove",    acc: H}
 VerbalRoot/2:
   - val: "{VerbalRoot}"
-  - val: "ketta"
-    ipa: "ketːa"
-    gloss: "harm"
-    acc: H
-    freq: d100
-  - val: "gedda"
-    ipa: "gedːa"
-    gloss: "hit"
-    acc: H
-    freq: d100
-  - val: "vůṙla"
-    ipa: "βɵɚla"
-    gloss: "impact"
-    acc: H
-    freq: d100
-  - val: "nak"
-    ipa: "nak"
-    gloss: "intersect"
-    acc: H
-    freq: d100
-  - val: "nomma"
-    ipa: "nomːa"
-    gloss: "want"
-    acc: H
-    freq: d100
-  - val: "latta"
-    ipa: "latːa"
-    gloss: "cut"
-    acc: H
-    freq: d100
+  - {val: "ketta",   ipa: "ketːa",  gloss: "harm",      acc: H}
+  - {val: "gedda",   ipa: "gedːa",  gloss: "hit",       acc: H}
+  - {val: "vůṙla",   ipa: "βɵɚ;la",  gloss: "impact",    acc: H}
+  - {val: "nak",     ipa: "nak",    gloss: "intersect", acc: H}
+  - {val: "nomma",   ipa: "nomːa",  gloss: "want",      acc: H}
+  - {val: "latta",   ipa: "latːa",  gloss: "cut",       acc: H}
 VerbalRoot/G:
   - val: "{VerbalRoot}"
-  - val: "gůt"
-    ipa: "gɵt"
-    gloss: "give"
-    acc: H
-    freq: d100
-  - val: "nep"
-    ipa: "nep"
-    gloss: "lend"
-    acc: H
-    freq: d100
+  - {val: "gůt",     ipa: "gɵt",    gloss: "give",      acc: H}
+  - {val: "nep",     ipa: "nep",    gloss: "lend",      acc: H}
 VerbalRoot:
-  - val: "{Onset}{HiWVowel}{Coda};"
-    freq: d2
-    gloss: "verb"
-    acc: H
-  - val: "{Onset}{HiWVowel}{GemCons}a"
-    ipa: "a"
-    freq: d1
-    gloss: "verb"
-    acc: H
-  - val: "{Onset}{HiSVowel}{..}{Onset}a"
-    ipa: "a"
-    freq: d0.6
-    gloss: "verb"
-    acc: H
-  - val: "{Onset}{HiWVowel}{Coda}{..}{Onset}a"
-    ipa: "a"
-    freq: d0.1
-    gloss: "verb"
-    acc: H
+  - {val: "{Onset}{HiWVowel}{Coda};",                      gloss: "verb", acc: H, freq: d20}
+  - {val: "{Onset}{HiWVowel}{GemCons}a",         ipa: "a", gloss: "verb", acc: H, freq: d10}
+  - {val: "{Onset}{HiSVowel}{..}{Onset}a",       ipa: "a", gloss: "verb", acc: H, freq: d6}
+  - {val: "{Onset}{HiWVowel}{Coda}{..}{Onset}a", ipa: "a", gloss: "verb", acc: H, freq: d1}
 
 #--- Phonology ---#
 Vowel:
