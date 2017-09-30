@@ -251,37 +251,73 @@ def refParse(refstr):
 	name = None
 	flist = None
 	ilist = None
+	args = list()
 	state = "lit"
+	ostate = "lit"
 	for c in refstr:
 		# print((c,state))
 		if state == "lit":
 			if c == "{":
+				ostate = state
 				state = "{"
 			elif c == "}":
+				ostate = state
 				state = "}"
 			else:
 				lit += c
 		elif state == "{":
 			if c == "{":
-				lit += "{"
-				state = "lit"
+				if ostate == "lit":
+					lit += c
+				elif ostate == "name":
+					name += c
+				elif ostate == "flist":
+					flist += c
+				elif ostate == "ilist":
+					ilist += c
+				state = ostate
 			elif c == "}":
-				name = ""
-				yield (lit,name,flist,ilist)
-				state = "lit"
-				lit = ""
-				name = None
-				flist = None
-				ilist = None
+				if ostate == "lit":
+					state = "}"
+					ostate = "name"
+					name = ""
+				else:
+					raise ValueError("{ encountered in reference")
 			else:
 				state = "name"
 				name = c
 		elif state == "}":
 			if c == "}":
-				lit += "}"
-				state = "lit"
+				if ostate == "lit":
+					lit += c
+				elif ostate == "name":
+					name += c
+				elif ostate == "flist":
+					flist += c
+				elif ostate == "ilist":
+					ilist += c
+				elif ostate == "args":
+					args[-1] += c
+				state = ostate
 			else:
-				raise ValueError("Single '}' encountered", refstr)
+				if ostate == "lit":
+					raise ValueError("Single '}' encountered", refstr)
+				elif c == "{":
+					yield (lit,name,flist,ilist,args)
+					state = "{"
+					lit = ""
+					name = None
+					flist = None
+					ilist = None
+					args = list()
+				else:
+					yield (lit,name,flist,ilist,args)
+					state = "lit"
+					lit = c
+					name = None
+					flist = None
+					ilist = None
+					args = list()
 		elif state == "name":
 			if c == ":":
 				state = "flist"
@@ -289,48 +325,68 @@ def refParse(refstr):
 			elif c == "!":
 				state = "ilist"
 				ilist = ""
+			elif c == "|":
+				state = "args"
+				args.append("")
 			elif c == "}":
-				yield (lit,name,flist,ilist)
-				state = "lit"
-				lit = ""
-				name = None
-				flist = None
-				ilist = None
+				ostate = state
+				state = "}"
 			elif c == "{":
-				raise ValueError("Extra '{' encountered", refstr)
+				ostate = state
+				state = "{"
 			else:
 				name += c
 		elif state == "flist":
 			if c == "}":
-				yield (lit,name,flist,ilist)
-				state = "lit"
-				lit = ""
-				name = None
-				flist = None
-				ilist = None
+				ostate = state
+				state = "}"
 			elif c == "{":
-				raise ValueError("Extra '{' encountered", refstr)
+				ostate = state
+				state = "{"
 			else:
 				flist += c
 		elif state == "ilist":
 			if c == "}":
-				yield (lit,name,flist,ilist)
-				state = "lit"
-				lit = ""
-				name = None
-				flist = None
-				ilist = None
+				ostate = state
+				state = "}"
 			elif c == "{":
-				raise ValueError("Extra '{' encountered", refstr)
+				ostate = state
+				state = "{"
 			else:
 				ilist += c
+		elif state == "args":
+			if c == ":":
+				state = "flist"
+				flist = ""
+			elif c == "!":
+				state = "ilist"
+				ilist = ""
+			elif c == "|":
+				args.append("")
+			elif c == "}":
+				ostate = state
+				state = "}"
+			elif c == "{":
+				ostate = state
+				state = "{"
+			elif c == "\\":
+				state = "escArg"
+			else:
+				args[-1] += c
+		elif state == "escArg":
+			if c == "|":
+				args[-1] = c
+			else:
+				raise ValueError("Illegal escape", refstr, "\\"+c)
 	if state == "lit":
-		yield (lit,name,flist,ilist)
+		yield (lit,name,flist,ilist,args)
+	elif state == "}" and ostate != "lit":
+		yield (lit,name,flist,ilist,args)
 	else:
 		raise ValueError("Unterminated reference", refstr)
 		
 
-def chooseFrom(Data, branches, depth=-16, maxDepth=16):
+def chooseFrom(Data, branches, depth=-16, maxDepth=16, args=None):
 	"""Select a random value from the branches, recursing
 		on references
 	"""
@@ -395,6 +451,8 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 			return rets
 		# Determine which is a string and which is a reference
 		else:
+			# print(branches[stop]["val"])
+			# print(list(refParse(branches[stop]["val"])))
 			for s in refParse(branches[stop]["val"]):
 				# Recurse on reference and insert results into string
 				# print(s)
@@ -426,13 +484,16 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 							# nstr += ','+str(d)
 						# Data[nstr] = node
 					elif s[3]:
+						# print(s[3])
 						_ = re.match(sep2, s[3])
 						if _:
 							_ = _.end()
 						ilist = re.split(sep2, s[3][_:])
+						# print(ilist)
 						node2 = []
 						for i in ilist:
 							ival = i.split(":")
+							# print(node)
 							node2.append(node[int(ival[0])])
 							if len(ival) > 1:
 								node2[-1]['freq'] = decimal.Decimal(ival[1])
@@ -443,7 +504,7 @@ def chooseFrom(Data, branches, depth=-16, maxDepth=16):
 					# an error.
 
 					# Fill reference
-					tmp = chooseFrom(Data, node, depth+1, maxDepth)
+					tmp = chooseFrom(Data, node, depth+1, maxDepth, s[4])
 					other_channels.update(
 						set([_ for _ in tmp]) - specialChannels
 					)
@@ -1093,7 +1154,7 @@ def main():
 				])
 				print(Header)
 				print('-'*40)
-		if list(refParse(args[1]))[0][1]:
+		if list(refParse(args[1]))[0][1] is not None:
 			Data[":arg"] = [{"val": args[1]}]
 		else:
 			Data[":arg"] = [{"val": "{"+args[1]+"}"}]
